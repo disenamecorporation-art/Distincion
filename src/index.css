@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Montserrat', sans-serif;
+    background-color: #FDFBF7;
+    color: #2C2A29;
+  }
+  
+  .font-serif-luxury {
+    font-family: 'Cormorant Garamond', serif;
+  }
+}
+
+/* Glassmorphism effects for modals and cards */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(229, 225, 216, 0.6);
+}
+
+.glass-dark {
+  background: rgba(20, 20, 20, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Resplandeciente / Glowing Animation for Floating CTA */
+@keyframes radiant-glow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(197, 168, 128, 0.6), 0 0 30px rgba(197, 168, 128, 0.4), 0 0 45px rgba(197, 168, 128, 0.2);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(212, 175, 55, 0.95), 0 0 55px rgba(197, 168, 128, 0.75), 0 0 80px rgba(197, 168, 128, 0.4);
+    transform: scale(1.04);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.22);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+}
+
+.animate-radiant-glow {
+  animation: radiant-glow 2.4s infinite ease-in-out;
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 2.4s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+}
+
+/* Smooth transitions */
+* {
+  scroll-behavior: smooth;
+}
+

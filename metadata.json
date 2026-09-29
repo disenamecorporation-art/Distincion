@@ -1,0 +1,7 @@
+{
+  "name": "Distinción Inmobiliaria Tavares",
+  "description": "Las mejores propiedades, con el respaldo legal que mereces. Inmobiliaria de lujo y asesoría jurídica integral.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
