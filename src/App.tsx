@@ -541,7 +541,51 @@ export default function App() {
           .order('id', { ascending: false });
 
         if (!propsError && propsData && propsData.length > 0) {
-          setProperties(propsData);
+          const normalizedProps: Property[] = propsData.map(p => {
+            let parsedImages: string[] = [];
+            if (Array.isArray(p.images)) {
+              parsedImages = p.images;
+            } else if (typeof p.images === 'string') {
+              try {
+                parsedImages = JSON.parse(p.images);
+              } catch {
+                parsedImages = [p.image || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=1000'];
+              }
+            } else {
+              parsedImages = [p.image || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=1000'];
+            }
+
+            let parsedFeatures: string[] = [];
+            if (Array.isArray(p.features)) {
+              parsedFeatures = p.features;
+            } else if (typeof p.features === 'string') {
+              try {
+                parsedFeatures = JSON.parse(p.features);
+              } catch {
+                parsedFeatures = [];
+              }
+            }
+
+            return {
+              id: Number(p.id) || Date.now(),
+              title: p.title || 'Inmueble Exclusivo',
+              type: p.type || 'en-venta',
+              price: p.price || '$0',
+              rawPrice: Number(p.rawPrice || p.raw_price) || 0,
+              location: p.location || '',
+              city: p.city || 'Las Mercedes',
+              beds: Number(p.beds) || 0,
+              baths: Number(p.baths) || 0,
+              sqm: Number(p.sqm) || 0,
+              image: p.image || parsedImages[0] || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=1000',
+              images: parsedImages.length > 0 ? parsedImages : [p.image || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=1000'],
+              videoUrl: p.videoUrl || p.video_url || '',
+              description: p.description || '',
+              features: parsedFeatures
+            };
+          });
+
+          setProperties(normalizedProps);
         }
 
         const { data: zonesData, error: zonesError } = await supabase
