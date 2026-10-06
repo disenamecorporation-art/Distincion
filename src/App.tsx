@@ -1406,7 +1406,7 @@ export default function App() {
                   <img 
                     src="https://i.postimg.cc/zB5ZJqwx/distin2.png" 
                     alt="Asesora Distinción Inmobiliaria Tavares" 
-                    className="w-auto h-[190px] xs:h-[220px] sm:h-[440px] md:h-[520px] lg:h-[620px] max-h-[85vh] object-contain object-bottom drop-shadow-xl pointer-events-none block"
+                    className="w-auto h-[250px] xs:h-[290px] sm:h-[440px] md:h-[520px] lg:h-[620px] max-h-[85vh] object-contain object-bottom drop-shadow-xl pointer-events-none block"
                   />
                 </div>
 
