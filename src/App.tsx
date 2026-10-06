@@ -1348,23 +1348,23 @@ export default function App() {
       {currentView === 'home' && (
         <>
           {/* Hero Section */}
-          <section id="inicio" className="relative overflow-hidden min-h-[220px] sm:min-h-[540px] lg:min-h-[700px] flex items-end bg-[#FDFBF7]">
+          <section id="inicio" className="relative overflow-hidden min-h-[250px] xs:min-h-[280px] sm:min-h-[540px] lg:min-h-[700px] flex items-center sm:items-end bg-[#FDFBF7]">
             <div 
               className="absolute inset-0 bg-cover bg-center z-0" 
               style={{ backgroundImage: `url('https://i.postimg.cc/3xy1sKYk/Chat-GPT-Image-27-sept-2026-06-14-54-p-m.png')` }}
             ></div>
 
-            <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 relative z-20 w-full pt-2 sm:pt-12 pb-0 text-[#111111]">
-              <div className="grid grid-cols-12 gap-2 sm:gap-6 lg:gap-8 items-end">
+            <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 relative z-20 w-full pt-3 sm:pt-12 pb-0 text-[#111111]">
+              <div className="grid grid-cols-12 gap-2 sm:gap-6 lg:gap-8 items-center sm:items-end">
                 
-                {/* Left Content */}
-                <div className="col-span-7 sm:col-span-7 lg:col-span-7 space-y-1.5 sm:space-y-4 lg:space-y-5 text-left py-2 sm:py-8 lg:py-16 pl-0">
+                {/* Left Content (Centrado verticalmente en móvil, alineado abajo en desktop) */}
+                <div className="col-span-7 sm:col-span-7 lg:col-span-7 space-y-1.5 sm:space-y-4 lg:space-y-5 text-left py-2 sm:py-8 lg:py-16 pl-0 self-center sm:self-end">
                   {/* Logo sobre el texto del Hero (Centrado sobre el bloque de texto) */}
-                  <div className="flex justify-center max-w-[190px] xs:max-w-[230px] sm:max-w-md lg:max-w-lg pb-0.5 sm:pb-2">
+                  <div className="flex justify-center max-w-[200px] xs:max-w-[240px] sm:max-w-md lg:max-w-lg pb-0.5 sm:pb-2">
                     <img 
                       src="https://i.postimg.cc/3R3wvxwt/logoweb2.png" 
                       alt="Distinción Inmobiliaria Tavares" 
-                      className="h-9 xs:h-11 sm:h-20 md:h-24 lg:h-30 w-auto max-w-full object-contain drop-shadow-md transition-transform hover:scale-105"
+                      className="h-10 xs:h-12 sm:h-20 md:h-24 lg:h-30 w-auto max-w-full object-contain drop-shadow-md transition-transform hover:scale-105"
                     />
                   </div>
 
@@ -1372,7 +1372,7 @@ export default function App() {
                     TU FUTURO, NUESTRA PRIORIDAD
                   </span>
                   
-                  <h1 className="text-xs xs:text-sm sm:text-2xl md:text-3xl lg:text-[2.5rem] xl:text-[2.7rem] font-serif-luxury font-bold leading-tight sm:leading-[1.18] text-[#111111] max-w-[190px] xs:max-w-[230px] sm:max-w-md lg:max-w-lg">
+                  <h1 className="text-xs xs:text-sm sm:text-2xl md:text-3xl lg:text-[2.5rem] xl:text-[2.7rem] font-serif-luxury font-bold leading-tight sm:leading-[1.18] text-[#111111] max-w-[200px] xs:max-w-[240px] sm:max-w-md lg:max-w-lg">
                     Las mejores propiedades, con el <span className="italic text-[#9E7D4E]">respaldo legal que mereces.</span>
                   </h1>
                   
@@ -1380,13 +1380,13 @@ export default function App() {
                     En Distinción Inmobiliaria Tavares te acompañamos en cada paso, con asesoría jurídica y comercial de alto nivel, para que tomes decisiones seguras y exitosas.
                   </p>
 
-                  <div className="pt-0.5 sm:pt-4 flex flex-wrap sm:flex-row items-center gap-1.5 sm:gap-4">
+                  <div className="pt-1 sm:pt-4 flex flex-wrap sm:flex-row items-center gap-1.5 sm:gap-4">
                     <button 
                       onClick={() => {
                         setCurrentView('properties');
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                       }}
-                      className="inline-flex items-center justify-center space-x-1 sm:space-x-3 bg-gradient-to-r from-[#C5A880] via-[#B3966D] to-[#9E7D4E] hover:opacity-90 text-white text-[8px] sm:text-xs tracking-[0.08em] sm:tracking-[0.2em] font-semibold uppercase px-2.5 sm:px-8 py-1.5 sm:py-4 rounded-full shadow-sm sm:shadow-lg transition-all transform hover:-translate-y-0.5 cursor-pointer"
+                      className="inline-flex items-center justify-center space-x-1 sm:space-x-3 bg-gradient-to-r from-[#C5A880] via-[#B3966D] to-[#9E7D4E] hover:opacity-90 text-white text-[8.5px] xs:text-[9.5px] sm:text-xs tracking-[0.08em] sm:tracking-[0.2em] font-semibold uppercase px-2.5 xs:px-3 sm:px-8 py-1.5 xs:py-2 sm:py-4 rounded-full shadow-sm sm:shadow-lg transition-all transform hover:-translate-y-0.5 cursor-pointer"
                     >
                       <span>VER PROPIEDADES</span>
                       <ArrowRight className="w-2.5 h-2.5 sm:w-4 sm:h-4" />
@@ -1394,7 +1394,7 @@ export default function App() {
 
                     <button 
                       onClick={() => setIsAppointmentOpen(true)}
-                      className="inline-flex items-center justify-center space-x-1 sm:space-x-3 bg-[#111111] hover:bg-[#222222] text-white text-[8px] sm:text-xs tracking-[0.08em] sm:tracking-[0.2em] font-semibold uppercase px-2.5 sm:px-8 py-1.5 sm:py-4 rounded-full shadow-xs sm:shadow-md transition-all cursor-pointer"
+                      className="inline-flex items-center justify-center space-x-1 sm:space-x-3 bg-[#111111] hover:bg-[#222222] text-white text-[8.5px] xs:text-[9.5px] sm:text-xs tracking-[0.08em] sm:tracking-[0.2em] font-semibold uppercase px-2.5 xs:px-3 sm:px-8 py-1.5 xs:py-2 sm:py-4 rounded-full shadow-xs sm:shadow-md transition-all cursor-pointer"
                     >
                       <span>ASESORÍA</span>
                     </button>
@@ -1406,7 +1406,7 @@ export default function App() {
                   <img 
                     src="https://i.postimg.cc/zB5ZJqwx/distin2.png" 
                     alt="Asesora Distinción Inmobiliaria Tavares" 
-                    className="w-auto h-[175px] xs:h-[200px] sm:h-[440px] md:h-[520px] lg:h-[620px] max-h-[85vh] object-contain object-bottom drop-shadow-xl pointer-events-none block"
+                    className="w-auto h-[190px] xs:h-[220px] sm:h-[440px] md:h-[520px] lg:h-[620px] max-h-[85vh] object-contain object-bottom drop-shadow-xl pointer-events-none block"
                   />
                 </div>
 
@@ -4160,9 +4160,12 @@ export default function App() {
 
           </div>
 
-          <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 font-light">
-            <p>© 2025 Distinción Inmobiliaria Tavares. Todos los derechos reservados.</p>
-            <p className="mt-4 sm:mt-0">Diseñado con excelencia y respaldo legal.</p>
+          <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 font-light border-t border-white/10 mt-8">
+            <p>© 2026 Distinción Inmobiliaria Tavares. Todos los derechos reservados.</p>
+            <p className="mt-4 sm:mt-0 flex items-center space-x-1.5 text-gray-400">
+              <span>Hecho por</span>
+              <span className="text-[#C5A880] font-medium tracking-wider">Legaint Corporation</span>
+            </p>
           </div>
         </div>
       </footer>
