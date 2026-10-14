@@ -67,3 +67,30 @@
   scroll-behavior: smooth;
 }
 
+@keyframes side-sway {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(10px);
+  }
+}
+
+@keyframes side-sway-alt {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-10px);
+  }
+}
+
+.animate-side-sway {
+  animation: side-sway 4s ease-in-out infinite;
+}
+
+.animate-side-sway-alt {
+  animation: side-sway-alt 4s ease-in-out infinite;
+}
+
+

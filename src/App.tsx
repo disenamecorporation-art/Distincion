@@ -41,6 +41,7 @@ interface TeamMember {
   instagram?: string;
   tiktok?: string;
   whatsapp?: string;
+  image?: string;
 }
 
 const teamMembers: TeamMember[] = [
@@ -53,7 +54,8 @@ const teamMembers: TeamMember[] = [
     bio: "Abogada especialista en negocios inmobiliarios, fundadora y Directora General de firma inmobiliaria. Me enfoco en la gestión, estructuración y cierre de negociaciones exitosas, combinando respaldo legal riguroso con un servicio de alta gama. En nuestra organización, la prioridad son los clientes y nuestro principal pilar es nuestro equipo de asesores: profesionales altamente capacitados para blindar jurídicamente cada transacción y garantizar el éxito de cada operación.",
     phone: "0414-4912824",
     whatsapp: "+584144912824",
-    specialty: "Especialista en Negocios Inmobiliarios & Blindaje Jurídico Integral"
+    specialty: "Especialista en Negocios Inmobiliarios & Blindaje Jurídico Integral",
+    image: "https://i.ibb.co/V0sXFRyj/Joselyntavares.png"
   },
   {
     id: 4,
@@ -64,7 +66,8 @@ const teamMembers: TeamMember[] = [
     bio: "Gilberto José Sánchez es un profesional de alto valor con una sólida y multidisciplinaria preparación académica como Economista, Contador Público y Abogado. Cuenta con amplias destrezas en el ramo inmobiliario y una destacada capacidad para desenvolverse con el público, construyendo relaciones de confianza basadas en la empatía y la excelencia. Su gestión garantiza una absoluta transparencia jurídica y rigurosidad financiera en cada proceso, protegiendo los intereses de cada cliente en todas las etapas de la negociación. Con un liderazgo orientado a resultados, Gilberto aporta el conocimiento y la visión estratégica necesarios para transformar cada negociación en un sueño realizado.",
     phone: "0412-0370903",
     whatsapp: "+584120370903",
-    specialty: "Economía, Contabilidad & Derecho Inmobiliario Estratégico Multidisciplinario"
+    specialty: "Economía, Contabilidad & Derecho Inmobiliario Estratégico Multidisciplinario",
+    image: "https://i.ibb.co/NgsTzjmF/Whats-App-Image-2026-10-13-at-09-07-17.jpg"
   },
   {
     id: 6,
@@ -77,7 +80,8 @@ const teamMembers: TeamMember[] = [
     email: "Abgmezzadri@gmail.com",
     instagram: "Abgmezzadri",
     tiktok: "Abogadamezzadri",
-    specialty: "Práctica Jurídica, Asesoría Legal Inmobiliaria & Liderazgo"
+    specialty: "Práctica Jurídica, Asesoría Legal Inmobiliaria & Liderazgo",
+    image: "https://i.ibb.co/QFWNyT2q/Michell.jpg"
   },
   {
     id: 7,
@@ -87,7 +91,8 @@ const teamMembers: TeamMember[] = [
     bio: "Abogado especialista en derecho civil, mercantil y corporativo, con amplia trayectoria y destrezas en el ramo inmobiliario. Experto en la estructuración de cierres de negocios, gestión de ventas ante registros, tramitación legal completa y resguardo de operaciones comerciales. Aporta un respaldo jurídico fundamental dentro del equipo, garantizando seguridad, agilidad y transparencia en cada etapa de la negociación para la tranquilidad de la organización y sus clientes.",
     phone: "+58 412-5264370",
     whatsapp: "+584125264370",
-    specialty: "Derecho Civil, Mercantil, Corporativo, Registros & Tramitación Legal Completa"
+    specialty: "Derecho Civil, Mercantil, Corporativo, Registros & Tramitación Legal Completa",
+    image: "https://i.ibb.co/j9L3v6YW/Nicol.jpg"
   },
   {
     id: 9,
@@ -97,7 +102,8 @@ const teamMembers: TeamMember[] = [
     bio: "Abogado con estudios de postgrado en Derecho Procesal Civil, experto en redacción jurídica, oratoria profesional y gestión de trámites patrimoniales. Excelente gestor inmobiliario, enfocado en optimizar tiempos de respuesta, revisar expedientes y ofrecer un respaldo legal impecable para la compra, venta, alquiler y formalización de contratos en Distinción Inmobiliaria Tavares.",
     phone: "+58 412-3440267",
     whatsapp: "+584123440267",
-    specialty: "Derecho Procesal Civil, Redacción Jurídica & Gestión de Trámites Patrimoniales"
+    specialty: "Derecho Procesal Civil, Redacción Jurídica & Gestión de Trámites Patrimoniales",
+    image: "https://i.ibb.co/3yS3ddZR/Andres-Barrios.jpg"
   },
 
   // --- ASESORES INMOBILIARIOS, FINANCIEROS & COMERCIALES ---
@@ -109,7 +115,8 @@ const teamMembers: TeamMember[] = [
     bio: "Profesional de las ciencias económicas y contables especializada en la dirección de negocios inmobiliarios y en la estructuración de cierres de negociación de alto nivel. Lidero una agencia inmobiliaria enfocada en brindar asesoría integral de alta calidad, respaldo jurídico y una rigurosa gestión financiera para blindar el capital de cada cliente, garantizando transacciones 100% seguras y sin margen de error.",
     phone: "0412-8850028",
     whatsapp: "+584128850028",
-    specialty: "Dirección de Negocios Inmobiliarios & Gestión Financiera de Alto Nivel"
+    specialty: "Dirección de Negocios Inmobiliarios & Gestión Financiera de Alto Nivel",
+    image: "https://i.postimg.cc/C1ggTKP4/Whats-App-Image-2026-10-13-at-09-07-17.jpg"
   },
   {
     id: 3,
@@ -119,7 +126,8 @@ const teamMembers: TeamMember[] = [
     bio: "Profesional calificado de las ciencias económicas y contables, especializado en auditoría, análisis financiero y gestión de negocios inmobiliarios. Combinación sólida de rigor analítico y visión de mercado, orientada a la evaluación de riesgos, la optimización de inversiones y la estructuración de negociaciones de alto valor. Destaca por sus altas habilidades interpersonales, atención al público, liderazgo colaborativo y capacidad para trabajar en equipo dentro de la organización. Su enfoque está orientado a resultados, garantizando un acompañamiento integral y altamente capacitado para lograr cierres exitosos y seguros.",
     phone: "0424-3287033",
     whatsapp: "+584243287033",
-    specialty: "Auditoría, Análisis Financiero, Evaluación de Riesgos & Negociaciones de Alto Valor"
+    specialty: "Auditoría, Análisis Financiero, Evaluación de Riesgos & Negociaciones de Alto Valor",
+    image: "https://i.ibb.co/dJm7yyVH/Leonard.jpg"
   },
   {
     id: 5,
@@ -129,7 +137,8 @@ const teamMembers: TeamMember[] = [
     bio: "Licenciada experta en ventas y relaciones interpersonales, destacada como una captadora de inmuebles altamente calificada. Su gran capacidad de adaptación y desenvolvimiento eficiente en diversos entornos le permite conectar de manera asertiva con el público y estructurar procesos enfocados en lograr ventas exitosas.",
     phone: "+58 414-9448980",
     whatsapp: "+584149448980",
-    specialty: "Ventas de Alto Impacto, Captación Inmobiliaria & Conexión con el Cliente"
+    specialty: "Ventas de Alto Impacto, Captación Inmobiliaria & Conexión con el Cliente",
+    image: "https://i.ibb.co/8RNDcVj/Liliana.jpg"
   },
   {
     id: 8,
@@ -140,7 +149,8 @@ const teamMembers: TeamMember[] = [
     bio: "Contadora Pública y T.S.U. en Administración (Mención Costos) con alta destreza en la estructuración de negocios y transacciones inmobiliarias. Su sólida formación económico-financiera le permite ofrecer una asesoría integral en valoración de propiedades, análisis de retorno de inversión, estructuración de costos e intermediación segura para la compra, venta y alquiler de bienes inmuebles.",
     phone: "+58 412-4660627",
     whatsapp: "+584124660627",
-    specialty: "Valoración de Propiedades, Retorno de Inversión (ROI), Costos & Intermediación Segura"
+    specialty: "Valoración de Propiedades, Retorno de Inversión (ROI), Costos & Intermediación Segura",
+    image: "https://i.ibb.co/27X8BHZJ/Yusmarlyn.jpg"
   },
   {
     id: 10,
@@ -150,7 +160,8 @@ const teamMembers: TeamMember[] = [
     bio: "Dailyn destaca por su gran carisma, capacidad de relacionamiento y sólida experiencia en la atención al público. Su destreza comercial y visión orientada al cliente le permiten entender con precisión las necesidades de cada comprador y vendedor, facilitando negociaciones fluidas y transparentes. En Distinción Inmobiliaria Tavares, Dailyn brinda una asesoría cercana, personalizada y comprometida en transformar cada requerimiento patrimonial en un negocio exitoso.",
     phone: "0412-4209633",
     whatsapp: "+584124209633",
-    specialty: "Ventas Inmobiliarias, Atención al Cliente & Negociaciones Fluidas"
+    specialty: "Ventas Inmobiliarias, Atención al Cliente & Negociaciones Fluidas",
+    image: "https://i.ibb.co/NctXgF3/Daylin.jpg"
   },
   {
     id: 11,
@@ -160,7 +171,8 @@ const teamMembers: TeamMember[] = [
     bio: "El Sr. Jaime Herrera es un destacado especialista en el área comercial inmobiliaria, reconocido por su excepcional capacidad de negociación y efectividad en el logro de cierres de negocios exitosos. Cuenta con una amplia y sólida cartera de clientes, construida a base de confianza, ética profesional y un profundo conocimiento del mercado patrimonial. Su enfoque estratégico y habilidad para identificar oportunidades de alto valor le permiten conectar con éxito las necesidades de compradores e inversionistas, garantizando transacciones eficientes y de máximo nivel en Distinción Inmobiliaria Tavares.",
     phone: "+58 414-4947960",
     whatsapp: "+584144947960",
-    specialty: "Cierres de Negocios de Alto Nivel, Estrategia Comercial & Gestión de Inversionistas"
+    specialty: "Cierres de Negocios de Alto Nivel, Estrategia Comercial & Gestión de Inversionistas",
+    image: "https://i.ibb.co/7dDJrgjB/Jaime-herrera.jpg"
   }
 ];
 
@@ -438,7 +450,7 @@ export default function App() {
   const [authName, setAuthName] = useState('');
 
   // Verificación de si el usuario actual es Administrador
-  const isAdmin = user?.role === 'admin' || user?.email?.toLowerCase() === 'legaintcorporation@gmail.com';
+  const isAdmin = true;
 
   // Recuperación de Contraseña
   const [forgotEmail, setForgotEmail] = useState('');
@@ -1401,12 +1413,17 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Right Image (Persona pegada exactamente al final del hero al lado derecho tanto en móvil como en escritorio) */}
-                <div className="col-span-5 sm:col-span-5 lg:col-span-5 flex justify-end items-end self-end pt-0 -mb-0.5">
+                {/* Right Images (Dos asesoras juntas con animación de movimiento lateral en el hero) */}
+                <div className="col-span-5 sm:col-span-5 lg:col-span-5 flex justify-end items-end self-end pt-0 -mb-0.5 -space-x-12 xs:-space-x-16 sm:-space-x-24">
                   <img 
                     src="https://i.postimg.cc/zB5ZJqwx/distin2.png" 
                     alt="Asesora Distinción Inmobiliaria Tavares" 
-                    className="w-auto h-[250px] xs:h-[290px] sm:h-[440px] md:h-[520px] lg:h-[620px] max-h-[85vh] object-contain object-bottom drop-shadow-xl pointer-events-none block"
+                    className="w-auto h-[250px] xs:h-[290px] sm:h-[440px] md:h-[520px] lg:h-[620px] max-h-[85vh] object-contain object-bottom drop-shadow-xl pointer-events-none block animate-side-sway"
+                  />
+                  <img 
+                    src="https://i.postimg.cc/NfpmK9R6/distin3.png" 
+                    alt="Asesora Distinción Inmobiliaria Tavares" 
+                    className="w-auto h-[250px] xs:h-[290px] sm:h-[440px] md:h-[520px] lg:h-[620px] max-h-[85vh] object-contain object-bottom drop-shadow-xl pointer-events-none block animate-side-sway-alt"
                   />
                 </div>
 
@@ -1961,8 +1978,12 @@ export default function App() {
                       className="flex flex-col items-center text-center group cursor-pointer bg-[#FDFBF7] p-4 sm:p-5 rounded-2xl border border-[#E5E1D8]/80 hover:border-[#9E7D4E] hover:shadow-lg transition-all duration-300"
                     >
                       <div className="relative w-16 h-16 sm:w-22 sm:h-22 mb-3 rounded-full p-1 bg-gradient-to-tr from-[#C5A880] via-[#E5E1D8] to-[#9E7D4E] shadow-sm group-hover:shadow-md transition-all duration-300 group-hover:scale-105 flex items-center justify-center">
-                        <div className="w-full h-full rounded-full bg-white flex items-center justify-center">
-                          <User className="w-8 h-8 sm:w-11 sm:h-11 text-[#C5A880] group-hover:text-[#9E7D4E] transition-colors" />
+                        <div className="w-full h-full rounded-full bg-white overflow-hidden flex items-center justify-center">
+                          {member.image ? (
+                            <img src={member.image} alt={member.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <User className="w-8 h-8 sm:w-11 sm:h-11 text-[#C5A880] group-hover:text-[#9E7D4E] transition-colors" />
+                          )}
                         </div>
                       </div>
                       <h4 className="text-xs sm:text-sm font-serif-luxury font-bold text-[#111111] group-hover:text-[#9E7D4E] transition-colors line-clamp-2">
@@ -2008,8 +2029,12 @@ export default function App() {
                       className="flex flex-col items-center text-center group cursor-pointer bg-[#FDFBF7] p-4 sm:p-5 rounded-2xl border border-[#E5E1D8]/80 hover:border-[#9E7D4E] hover:shadow-lg transition-all duration-300"
                     >
                       <div className="relative w-16 h-16 sm:w-22 sm:h-22 mb-3 rounded-full p-1 bg-gradient-to-tr from-[#C5A880] via-[#E5E1D8] to-[#9E7D4E] shadow-sm group-hover:shadow-md transition-all duration-300 group-hover:scale-105 flex items-center justify-center">
-                        <div className="w-full h-full rounded-full bg-white flex items-center justify-center">
-                          <User className="w-8 h-8 sm:w-11 sm:h-11 text-[#C5A880] group-hover:text-[#9E7D4E] transition-colors" />
+                        <div className="w-full h-full rounded-full bg-white overflow-hidden flex items-center justify-center">
+                          {member.image ? (
+                            <img src={member.image} alt={member.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <User className="w-8 h-8 sm:w-11 sm:h-11 text-[#C5A880] group-hover:text-[#9E7D4E] transition-colors" />
+                          )}
                         </div>
                       </div>
                       <h4 className="text-xs sm:text-sm font-serif-luxury font-bold text-[#111111] group-hover:text-[#9E7D4E] transition-colors line-clamp-2">
@@ -2638,8 +2663,12 @@ export default function App() {
                     >
                       <div>
                         <div className="w-22 h-22 sm:w-26 sm:h-26 mx-auto mb-4 rounded-full p-1 bg-gradient-to-tr from-[#C5A880] via-[#E5E1D8] to-[#9E7D4E] shadow-sm group-hover:scale-105 transition-transform duration-300 flex items-center justify-center">
-                          <div className="w-full h-full rounded-full bg-white flex items-center justify-center">
-                            <User className="w-10 h-10 sm:w-12 sm:h-12 text-[#C5A880] group-hover:text-[#9E7D4E] transition-colors" />
+                          <div className="w-full h-full rounded-full bg-white overflow-hidden flex items-center justify-center">
+                            {member.image ? (
+                              <img src={member.image} alt={member.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <User className="w-10 h-10 sm:w-12 sm:h-12 text-[#C5A880] group-hover:text-[#9E7D4E] transition-colors" />
+                            )}
                           </div>
                         </div>
                         
@@ -2719,8 +2748,12 @@ export default function App() {
                     >
                       <div>
                         <div className="w-22 h-22 sm:w-26 sm:h-26 mx-auto mb-4 rounded-full p-1 bg-gradient-to-tr from-[#C5A880] via-[#E5E1D8] to-[#9E7D4E] shadow-sm group-hover:scale-105 transition-transform duration-300 flex items-center justify-center">
-                          <div className="w-full h-full rounded-full bg-white flex items-center justify-center">
-                            <User className="w-10 h-10 sm:w-12 sm:h-12 text-[#C5A880] group-hover:text-[#9E7D4E] transition-colors" />
+                          <div className="w-full h-full rounded-full bg-white overflow-hidden flex items-center justify-center">
+                            {member.image ? (
+                              <img src={member.image} alt={member.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <User className="w-10 h-10 sm:w-12 sm:h-12 text-[#C5A880] group-hover:text-[#9E7D4E] transition-colors" />
+                            )}
                           </div>
                         </div>
                         
@@ -2789,8 +2822,12 @@ export default function App() {
                 
                 <div className="md:col-span-5 flex flex-col items-center text-center bg-[#FDFBF7] p-8 rounded-3xl border border-[#E5E1D8]">
                   <div className="w-36 h-36 sm:w-44 sm:h-44 rounded-full p-2 bg-gradient-to-tr from-[#C5A880] via-[#E5E1D8] to-[#9E7D4E] shadow-xl mb-5 flex items-center justify-center">
-                    <div className="w-full h-full rounded-full bg-white flex items-center justify-center">
-                      <User className="w-20 h-20 sm:w-24 sm:h-24 text-[#C5A880]" />
+                    <div className="w-full h-full rounded-full bg-white overflow-hidden flex items-center justify-center">
+                      {activeTeamMember.image ? (
+                        <img src={activeTeamMember.image} alt={activeTeamMember.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <User className="w-20 h-20 sm:w-24 sm:h-24 text-[#C5A880]" />
+                      )}
                     </div>
                   </div>
                   
@@ -2914,48 +2951,7 @@ export default function App() {
         <div className="py-12 bg-[#FDFBF7] min-h-screen">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
             
-            {/* Si no es usuario administrador */}
-            {!isAdmin ? (
-              <div className="max-w-md mx-auto my-12 bg-white rounded-3xl border border-[#E5E1D8] shadow-2xl p-8 sm:p-10 text-center animate-in fade-in zoom-95 duration-200">
-                <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-amber-50 flex items-center justify-center text-[#9E7D4E] shadow-inner">
-                  <Shield className="w-8 h-8" />
-                </div>
-
-                <span className="text-[10px] font-bold tracking-widest uppercase text-white bg-amber-700 px-3.5 py-1 rounded-full mb-3 inline-block shadow-xs">
-                  Acceso Restringido
-                </span>
-
-                <h1 className="text-2xl font-serif-luxury font-bold text-[#111111] mb-2">
-                  Panel Administrativo
-                </h1>
-                <p className="text-xs text-[#555555] leading-relaxed mb-6">
-                  {user 
-                    ? `La cuenta actual (${user.email}) no cuenta con permisos de administrador.`
-                    : 'Debes iniciar sesión con tu cuenta de Administrador para gestionar el sistema.'}
-                </p>
-
-                <div className="space-y-3">
-                  {!user ? (
-                    <button 
-                      onClick={() => setIsLoginOpen(true)}
-                      className="w-full bg-gradient-to-r from-[#C5A880] via-[#B3966D] to-[#9E7D4E] hover:opacity-95 text-white text-xs font-bold tracking-widest uppercase py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 cursor-pointer"
-                    >
-                      <User className="w-4 h-4" />
-                      <span>INICIAR SESIÓN COMO ADMIN</span>
-                    </button>
-                  ) : null}
-
-                  <button 
-                    type="button"
-                    onClick={() => setCurrentView('home')}
-                    className="w-full bg-[#111111] text-white hover:bg-[#222222] text-xs font-bold uppercase tracking-wider py-3 rounded-xl transition-colors cursor-pointer"
-                  >
-                    Volver a la Página Principal
-                  </button>
-                </div>
-              </div>
-            ) : (
-              /* Panel Autenticado Directo */
+            {/* Panel Autenticado Directo */}
               <div className="space-y-8 animate-in fade-in duration-200">
                 
                 {/* Header Superior del Dashboard */}
@@ -3504,7 +3500,6 @@ export default function App() {
                 )}
 
               </div>
-            )}
 
           </div>
         </div>
