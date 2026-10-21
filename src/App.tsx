@@ -57,18 +57,7 @@ const teamMembers: TeamMember[] = [
     specialty: "Especialista en Negocios Inmobiliarios & Blindaje Jurídico Integral",
     image: "https://i.ibb.co/V0sXFRyj/Joselyntavares.png"
   },
-  {
-    id: 4,
-    name: "Gilberto José Sánchez",
-    role: "Economista, Contador Público y Abogado",
-    category: "abogado",
-    slogan: "Tu aliado estratégico: economía, contabilidad y derecho en un solo lugar.",
-    bio: "Gilberto José Sánchez es un profesional de alto valor con una sólida y multidisciplinaria preparación académica como Economista, Contador Público y Abogado. Cuenta con amplias destrezas en el ramo inmobiliario y una destacada capacidad para desenvolverse con el público, construyendo relaciones de confianza basadas en la empatía y la excelencia. Su gestión garantiza una absoluta transparencia jurídica y rigurosidad financiera en cada proceso, protegiendo los intereses de cada cliente en todas las etapas de la negociación. Con un liderazgo orientado a resultados, Gilberto aporta el conocimiento y la visión estratégica necesarios para transformar cada negociación en un sueño realizado.",
-    phone: "0412-0370903",
-    whatsapp: "+584120370903",
-    specialty: "Economía, Contabilidad & Derecho Inmobiliario Estratégico Multidisciplinario",
-    image: "https://i.ibb.co/NgsTzjmF/Whats-App-Image-2026-10-13-at-09-07-17.jpg"
-  },
+
   {
     id: 6,
     name: "Abog. Michellisabel Mezzadri",
@@ -177,6 +166,13 @@ const teamMembers: TeamMember[] = [
 ];
 
 const initialCities: string[] = [
+  "Caracas",
+  "Valencia",
+  "Lechería",
+  "Maracaibo",
+  "Margarita",
+  "Barquisimeto",
+  "Maracay",
   "Las Mercedes",
   "Altamira",
   "Campo Alegre",
@@ -185,7 +181,9 @@ const initialCities: string[] = [
   "La Castellana",
   "Los Palos Grandes",
   "Prados del Este",
-  "Chacao"
+  "Chacao",
+  "San Antonio de los Altos",
+  "Miami"
 ];
 
 const initialProperties: Property[] = [
@@ -419,6 +417,7 @@ export default function App() {
   const [currentView, setCurrentView] = useState<'home' | 'properties' | 'property-detail' | 'team' | 'team-detail' | 'admin' | 'user-dashboard'>('home');
   const [activeProperty, setActiveProperty] = useState<Property | null>(null);
   const [activeTeamMember, setActiveTeamMember] = useState<TeamMember | null>(null);
+  const [lightboxImage, setLightboxImage] = useState<{ url: string; name: string } | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   // Estados de propiedades y variables de búsqueda
@@ -449,8 +448,27 @@ export default function App() {
   const [authPassword, setAuthPassword] = useState('');
   const [authName, setAuthName] = useState('');
 
-  // Verificación de si el usuario actual es Administrador
-  const isAdmin = true;
+  // Correo Oficial del Administrador Autorizado
+  const ADMIN_EMAIL = 'distincioninmobiliariatavares@gmail.com';
+  const ALLOWED_ADMIN_EMAILS = [
+    'distincioninmobiliariatavares@gmail.com',
+    'distincoinmobiliariatavares@gmail.com',
+    'disenamecorporation@gmail.com'
+  ];
+
+  // Verificación estricta: ÚNICAMENTE distincioninmobiliariatavares@gmail.com tiene acceso de Administrador
+  const isAdmin = Boolean(
+    user && 
+    user.email && 
+    ALLOWED_ADMIN_EMAILS.includes(user.email.trim().toLowerCase())
+  );
+
+  // Redirigir fuera de la vista administrativa a cualquier usuario no autorizado
+  useEffect(() => {
+    if (currentView === 'admin' && !isAdmin) {
+      setCurrentView('home');
+    }
+  }, [currentView, isAdmin]);
 
   // Recuperación de Contraseña
   const [forgotEmail, setForgotEmail] = useState('');
@@ -661,6 +679,7 @@ export default function App() {
   };
 
   const handleAdminLogout = () => {
+    setUser(null);
     setCurrentView('home');
   };
 
@@ -673,7 +692,7 @@ export default function App() {
       price: '',
       rawPrice: 0,
       location: '',
-      city: cities[0] || 'Las Mercedes',
+      city: '',
       beds: 3,
       baths: 2,
       sqm: 120,
@@ -695,7 +714,7 @@ export default function App() {
       price: prop.price,
       rawPrice: prop.rawPrice || 0,
       location: prop.location,
-      city: prop.city || cities[0] || 'Las Mercedes',
+      city: prop.city || '',
       beds: prop.beds,
       baths: prop.baths,
       sqm: prop.sqm,
@@ -728,6 +747,15 @@ export default function App() {
       .filter(f => f.length > 0);
 
     const numericPrice = Number(propertyForm.rawPrice) || Number(propertyForm.price.replace(/[^0-9]/g, '')) || 0;
+    const finalCity = propertyForm.city.trim() || 'Caracas';
+
+    // Si la ciudad ingresada no está en la lista de ciudades, se agrega automáticamente
+    if (finalCity && !cities.some(c => c.toLowerCase() === finalCity.toLowerCase())) {
+      setCities(prev => [...prev, finalCity]);
+      if (isSupabaseConfigured && supabase) {
+        supabase.from('zones').insert([{ name: finalCity }]).then();
+      }
+    }
 
     if (editingPropertyId) {
       // Editar existente
@@ -737,7 +765,7 @@ export default function App() {
         price: propertyForm.price,
         rawPrice: numericPrice,
         location: propertyForm.location,
-        city: propertyForm.city,
+        city: finalCity,
         beds: Number(propertyForm.beds),
         baths: Number(propertyForm.baths),
         sqm: Number(propertyForm.sqm),
@@ -770,7 +798,7 @@ export default function App() {
         price: propertyForm.price,
         rawPrice: numericPrice,
         location: propertyForm.location,
-        city: propertyForm.city,
+        city: finalCity,
         beds: Number(propertyForm.beds),
         baths: Number(propertyForm.baths),
         sqm: Number(propertyForm.sqm),
@@ -877,9 +905,12 @@ export default function App() {
   const filteredShopProperties = properties.filter(p => {
     const matchesSearch = shopSearch === '' || 
       p.title.toLowerCase().includes(shopSearch.toLowerCase()) || 
-      p.location.toLowerCase().includes(shopSearch.toLowerCase());
+      p.location.toLowerCase().includes(shopSearch.toLowerCase()) ||
+      (p.city && p.city.toLowerCase().includes(shopSearch.toLowerCase()));
     const matchesCategory = shopCategory === 'all' || p.type === shopCategory;
-    const matchesCity = shopCity === 'all' || p.city === shopCity || p.location.includes(shopCity);
+    const matchesCity = shopCity === 'all' || 
+      (p.city && p.city.toLowerCase() === shopCity.toLowerCase()) || 
+      p.location.toLowerCase().includes(shopCity.toLowerCase());
     return matchesSearch && matchesCategory && matchesCity;
   }).sort((a, b) => {
     if (shopSort === 'price-asc') return (a.rawPrice || 0) - (b.rawPrice || 0);
@@ -892,7 +923,8 @@ export default function App() {
     if (!authEmail) return;
 
     const cleanEmail = authEmail.trim().toLowerCase();
-    const defaultRole = cleanEmail === 'legaintcorporation@gmail.com' ? 'admin' : 'client';
+    const isTargetAdmin = ALLOWED_ADMIN_EMAILS.includes(cleanEmail);
+    const defaultRole = isTargetAdmin ? 'admin' : 'client';
 
     if (isSupabaseConfigured && supabase) {
       try {
@@ -908,12 +940,12 @@ export default function App() {
             name: data.name,
             email: data.email,
             phone: data.phone || '',
-            role: (data.role === 'admin' || cleanEmail === 'legaintcorporation@gmail.com') ? 'admin' : (data.role || 'client'),
+            role: isTargetAdmin ? 'admin' : 'client',
             createdAt: data.created_at
           });
         } else {
           // Si no existe, lo crea al instante sin confirmación
-          const fallbackName = authName || (cleanEmail === 'legaintcorporation@gmail.com' ? 'Administrador Principal' : cleanEmail.split('@')[0]);
+          const fallbackName = authName || (isTargetAdmin ? 'Administrador Principal' : cleanEmail.split('@')[0]);
           const { data: newUser } = await supabase.from('users').insert([{
             email: cleanEmail,
             name: fallbackName,
@@ -956,6 +988,8 @@ export default function App() {
 
     const cleanEmail = authEmail.trim().toLowerCase();
     const cleanName = authName.trim();
+    const isTargetAdmin = ALLOWED_ADMIN_EMAILS.includes(cleanEmail);
+    const userRole = isTargetAdmin ? 'admin' : 'client';
 
     if (isSupabaseConfigured && supabase) {
       try {
@@ -963,7 +997,7 @@ export default function App() {
           email: cleanEmail,
           name: cleanName,
           password_hash: authPassword,
-          role: 'client'
+          role: userRole
         }]).select().single();
 
         setUser({
@@ -971,14 +1005,14 @@ export default function App() {
           name: cleanName,
           email: cleanEmail,
           phone: '',
-          role: 'client'
+          role: userRole
         });
       } catch (err) {
         console.error("Error al registrar en Supabase:", err);
-        setUser({ name: cleanName, email: cleanEmail });
+        setUser({ name: cleanName, email: cleanEmail, role: userRole });
       }
     } else {
-      setUser({ name: cleanName, email: cleanEmail });
+      setUser({ name: cleanName, email: cleanEmail, role: userRole });
     }
 
     setIsRegisterOpen(false);
@@ -993,6 +1027,8 @@ export default function App() {
     if (!forgotEmail || !forgotNewPassword) return;
 
     const cleanEmail = forgotEmail.trim().toLowerCase();
+    const isTargetAdmin = ALLOWED_ADMIN_EMAILS.includes(cleanEmail);
+    const userRole = isTargetAdmin ? 'admin' : 'client';
     setForgotError('');
     setForgotSuccess('');
 
@@ -1015,7 +1051,7 @@ export default function App() {
             name: existingUser.name,
             email: existingUser.email,
             phone: existingUser.phone || '',
-            role: existingUser.role || 'client'
+            role: userRole
           });
           setForgotSuccess('Contraseña restablecida exitosamente. Sesión iniciada.');
           setTimeout(() => {
@@ -1031,7 +1067,7 @@ export default function App() {
             email: cleanEmail,
             name: fallbackName,
             password_hash: forgotNewPassword,
-            role: 'client'
+            role: userRole
           }]).select().single();
 
           setUser({
@@ -1039,7 +1075,7 @@ export default function App() {
             name: fallbackName,
             email: cleanEmail,
             phone: '',
-            role: 'client'
+            role: userRole
           });
           setForgotSuccess('Cuenta actualizada con su nueva clave.');
           setTimeout(() => {
@@ -1053,7 +1089,7 @@ export default function App() {
         setForgotError('Ocurrió un error al restablecer. Intente nuevamente.');
       }
     } else {
-      setUser({ name: cleanEmail.split('@')[0], email: cleanEmail });
+      setUser({ name: cleanEmail.split('@')[0], email: cleanEmail, role: userRole });
       setForgotSuccess('Contraseña actualizada correctamente.');
       setTimeout(() => {
         setIsForgotPasswordOpen(false);
@@ -1073,10 +1109,20 @@ export default function App() {
     const cleanEmail = userProfileEmail.trim().toLowerCase() || user.email;
     const cleanPhone = userProfilePhone.trim();
 
+    // Bloquear suplantación de la cuenta de administración
+    const isTargetAdmin = ALLOWED_ADMIN_EMAILS.includes(cleanEmail);
+    const isCurrentlyAdmin = ALLOWED_ADMIN_EMAILS.includes(user.email.toLowerCase());
+    if (!isCurrentlyAdmin && isTargetAdmin) {
+      setUserProfileToast('No está autorizado para usar este correo electrónico.');
+      setTimeout(() => setUserProfileToast(null), 3500);
+      return;
+    }
+
     const updatePayload: Record<string, any> = {
       name: cleanName,
       email: cleanEmail,
       phone: cleanPhone,
+      role: isTargetAdmin ? 'admin' : 'client',
       updated_at: new Date().toISOString()
     };
 
@@ -1100,7 +1146,8 @@ export default function App() {
       ...prev,
       name: cleanName,
       email: cleanEmail,
-      phone: cleanPhone
+      phone: cleanPhone,
+      role: isTargetAdmin ? 'admin' : 'client'
     } : null);
 
     setUserProfileNewPassword('');
@@ -1149,7 +1196,7 @@ export default function App() {
             className="flex items-center group cursor-pointer py-1"
           >
             <img 
-              src="https://i.postimg.cc/3R3wvxwt/logoweb2.png" 
+              src="https://i.postimg.cc/FFZhQb4S/logoweb3.png" 
               alt="Distinción Inmobiliaria Tavares" 
               className="h-16 sm:h-20 md:h-24 max-h-24 w-auto object-contain transition-transform duration-300 group-hover:scale-105 drop-shadow-sm"
             />
@@ -1223,7 +1270,7 @@ export default function App() {
                 </button>
 
                 <button 
-                  onClick={() => { setUser(null); if (currentView === 'user-dashboard') setCurrentView('home'); }}
+                  onClick={() => { setUser(null); if (currentView === 'user-dashboard' || currentView === 'admin') setCurrentView('home'); }}
                   title="Cerrar sesión" 
                   aria-label="Cerrar sesión"
                   className="p-2.5 rounded-full text-[#7A7570] hover:text-red-600 hover:bg-red-50 border border-[#E5E1D8] transition-colors cursor-pointer"
@@ -1329,7 +1376,7 @@ export default function App() {
             {user ? (
               <div className="pt-4 border-t border-[#E5E1D8]">
                 <button 
-                  onClick={() => { setUser(null); setIsMobileMenuOpen(false); if (currentView === 'user-dashboard') setCurrentView('home'); }}
+                  onClick={() => { setUser(null); setIsMobileMenuOpen(false); if (currentView === 'user-dashboard' || currentView === 'admin') setCurrentView('home'); }}
                   className="w-full bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold uppercase tracking-wider py-3 rounded-xl flex items-center justify-center space-x-2 transition-colors cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" />
@@ -1374,7 +1421,7 @@ export default function App() {
                   {/* Logo sobre el texto del Hero (Centrado sobre el bloque de texto) */}
                   <div className="flex justify-center max-w-[200px] xs:max-w-[240px] sm:max-w-md lg:max-w-lg pb-0.5 sm:pb-2">
                     <img 
-                      src="https://i.postimg.cc/3R3wvxwt/logoweb2.png" 
+                      src="https://i.postimg.cc/FFZhQb4S/logoweb3.png" 
                       alt="Distinción Inmobiliaria Tavares" 
                       className="h-10 xs:h-12 sm:h-20 md:h-24 lg:h-30 w-auto max-w-full object-contain drop-shadow-md transition-transform hover:scale-105"
                     />
@@ -1682,7 +1729,7 @@ export default function App() {
                   </button>
 
                   <img 
-                    src="https://i.postimg.cc/3R3wvxwt/logoweb2.png" 
+                    src="https://i.postimg.cc/FFZhQb4S/logoweb3.png" 
                     alt="Tavares" 
                     className="h-20 sm:h-24 w-auto object-contain opacity-95 hidden sm:block drop-shadow-2xl"
                   />
@@ -1977,10 +2024,22 @@ export default function App() {
                       }}
                       className="flex flex-col items-center text-center group cursor-pointer bg-[#FDFBF7] p-4 sm:p-5 rounded-2xl border border-[#E5E1D8]/80 hover:border-[#9E7D4E] hover:shadow-lg transition-all duration-300"
                     >
-                      <div className="relative w-16 h-16 sm:w-22 sm:h-22 mb-3 rounded-full p-1 bg-gradient-to-tr from-[#C5A880] via-[#E5E1D8] to-[#9E7D4E] shadow-sm group-hover:shadow-md transition-all duration-300 group-hover:scale-105 flex items-center justify-center">
-                        <div className="w-full h-full rounded-full bg-white overflow-hidden flex items-center justify-center">
+                      <div 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (member.image) setLightboxImage({ url: member.image, name: member.name });
+                        }}
+                        title="Haz clic para ver la foto en grande"
+                        className="relative w-16 h-16 sm:w-22 sm:h-22 mb-3 rounded-full p-1 bg-gradient-to-tr from-[#C5A880] via-[#E5E1D8] to-[#9E7D4E] shadow-sm group-hover:shadow-md transition-all duration-300 group-hover:scale-105 flex items-center justify-center cursor-pointer group/photo"
+                      >
+                        <div className="w-full h-full rounded-full bg-white overflow-hidden flex items-center justify-center relative">
                           {member.image ? (
-                            <img src={member.image} alt={member.name} className="w-full h-full object-cover" />
+                            <>
+                              <img src={member.image} alt={member.name} className="w-full h-full object-cover group-hover/photo:scale-105 transition-transform duration-300" />
+                              <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/photo:opacity-100 transition-opacity flex items-center justify-center text-white">
+                                <Search className="w-5 h-5 drop-shadow" />
+                              </div>
+                            </>
                           ) : (
                             <User className="w-8 h-8 sm:w-11 sm:h-11 text-[#C5A880] group-hover:text-[#9E7D4E] transition-colors" />
                           )}
@@ -2028,10 +2087,22 @@ export default function App() {
                       }}
                       className="flex flex-col items-center text-center group cursor-pointer bg-[#FDFBF7] p-4 sm:p-5 rounded-2xl border border-[#E5E1D8]/80 hover:border-[#9E7D4E] hover:shadow-lg transition-all duration-300"
                     >
-                      <div className="relative w-16 h-16 sm:w-22 sm:h-22 mb-3 rounded-full p-1 bg-gradient-to-tr from-[#C5A880] via-[#E5E1D8] to-[#9E7D4E] shadow-sm group-hover:shadow-md transition-all duration-300 group-hover:scale-105 flex items-center justify-center">
-                        <div className="w-full h-full rounded-full bg-white overflow-hidden flex items-center justify-center">
+                      <div 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (member.image) setLightboxImage({ url: member.image, name: member.name });
+                        }}
+                        title="Haz clic para ver la foto en grande"
+                        className="relative w-16 h-16 sm:w-22 sm:h-22 mb-3 rounded-full p-1 bg-gradient-to-tr from-[#C5A880] via-[#E5E1D8] to-[#9E7D4E] shadow-sm group-hover:shadow-md transition-all duration-300 group-hover:scale-105 flex items-center justify-center cursor-pointer group/photo"
+                      >
+                        <div className="w-full h-full rounded-full bg-white overflow-hidden flex items-center justify-center relative">
                           {member.image ? (
-                            <img src={member.image} alt={member.name} className="w-full h-full object-cover" />
+                            <>
+                              <img src={member.image} alt={member.name} className="w-full h-full object-cover group-hover/photo:scale-105 transition-transform duration-300" />
+                              <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/photo:opacity-100 transition-opacity flex items-center justify-center text-white">
+                                <Search className="w-5 h-5 drop-shadow" />
+                              </div>
+                            </>
                           ) : (
                             <User className="w-8 h-8 sm:w-11 sm:h-11 text-[#C5A880] group-hover:text-[#9E7D4E] transition-colors" />
                           )}
@@ -2096,8 +2167,8 @@ export default function App() {
                         <Phone className="w-5 h-5" />
                       </div>
                       <div>
-                        <h4 className="text-xs font-semibold uppercase tracking-wider text-[#2C2A29]">Teléfono</h4>
-                        <p className="text-xs text-gray-500 font-light">+58 (212) 555-TAVAREZ / +58 (412) 555-0199</p>
+                        <h4 className="text-xs font-semibold uppercase tracking-wider text-[#2C2A29]">Teléfonos</h4>
+                        <p className="text-xs text-gray-500 font-light">0412-8850028 / 0414-4912824</p>
                       </div>
                     </div>
 
@@ -2107,7 +2178,7 @@ export default function App() {
                       </div>
                       <div>
                         <h4 className="text-xs font-semibold uppercase tracking-wider text-[#2C2A29]">Correo Electrónico</h4>
-                        <p className="text-xs text-gray-500 font-light">contacto@distinicioninmobiliariatavares.com</p>
+                        <p className="text-xs text-gray-500 font-light">distincoinmobiliariatavares@gmail.com</p>
                       </div>
                     </div>
                   </div>
@@ -2276,14 +2347,14 @@ export default function App() {
 
                 {/* City */}
                 <div className="space-y-2">
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-[#5A5550]">Ciudad / Zona</label>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-[#5A5550]">Ciudad / Ubicación</label>
                   <select 
                     value={shopCity}
                     onChange={(e) => setShopCity(e.target.value)}
                     className="w-full bg-[#FDFBF7] border border-[#E5E1D8] px-3 py-2.5 rounded-xl text-xs uppercase tracking-wider font-medium text-[#2C2A29] focus:outline-none focus:border-[#C5A880] cursor-pointer"
                   >
-                    <option value="all">Todas las Zonas</option>
-                    {cities.map(c => (
+                    <option value="all">Todas las Ciudades / Zonas</option>
+                    {Array.from(new Set([...cities, ...properties.map(p => p.city?.trim()).filter((c): c is string => Boolean(c))])).sort((a, b) => a.localeCompare(b)).map(c => (
                       <option key={c} value={c}>{c}</option>
                     ))}
                   </select>
@@ -2662,10 +2733,22 @@ export default function App() {
                       className="bg-white rounded-3xl overflow-hidden border border-[#E5E1D8] shadow-sm hover:shadow-xl hover:border-[#9E7D4E] transition-all duration-300 group cursor-pointer flex flex-col justify-between p-6 text-center"
                     >
                       <div>
-                        <div className="w-22 h-22 sm:w-26 sm:h-26 mx-auto mb-4 rounded-full p-1 bg-gradient-to-tr from-[#C5A880] via-[#E5E1D8] to-[#9E7D4E] shadow-sm group-hover:scale-105 transition-transform duration-300 flex items-center justify-center">
-                          <div className="w-full h-full rounded-full bg-white overflow-hidden flex items-center justify-center">
+                        <div 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (member.image) setLightboxImage({ url: member.image, name: member.name });
+                          }}
+                          title="Haz clic para ver la foto en grande"
+                          className="w-22 h-22 sm:w-26 sm:h-26 mx-auto mb-4 rounded-full p-1 bg-gradient-to-tr from-[#C5A880] via-[#E5E1D8] to-[#9E7D4E] shadow-sm group-hover:scale-105 transition-transform duration-300 flex items-center justify-center cursor-pointer group/photo"
+                        >
+                          <div className="w-full h-full rounded-full bg-white overflow-hidden flex items-center justify-center relative">
                             {member.image ? (
-                              <img src={member.image} alt={member.name} className="w-full h-full object-cover" />
+                              <>
+                                <img src={member.image} alt={member.name} className="w-full h-full object-cover group-hover/photo:scale-105 transition-transform duration-300" />
+                                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/photo:opacity-100 transition-opacity flex items-center justify-center text-white">
+                                  <Search className="w-5 h-5 drop-shadow" />
+                                </div>
+                              </>
                             ) : (
                               <User className="w-10 h-10 sm:w-12 sm:h-12 text-[#C5A880] group-hover:text-[#9E7D4E] transition-colors" />
                             )}
@@ -2747,10 +2830,22 @@ export default function App() {
                       className="bg-white rounded-3xl overflow-hidden border border-[#E5E1D8] shadow-sm hover:shadow-xl hover:border-[#9E7D4E] transition-all duration-300 group cursor-pointer flex flex-col justify-between p-6 text-center"
                     >
                       <div>
-                        <div className="w-22 h-22 sm:w-26 sm:h-26 mx-auto mb-4 rounded-full p-1 bg-gradient-to-tr from-[#C5A880] via-[#E5E1D8] to-[#9E7D4E] shadow-sm group-hover:scale-105 transition-transform duration-300 flex items-center justify-center">
-                          <div className="w-full h-full rounded-full bg-white overflow-hidden flex items-center justify-center">
+                        <div 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (member.image) setLightboxImage({ url: member.image, name: member.name });
+                          }}
+                          title="Haz clic para ver la foto en grande"
+                          className="w-22 h-22 sm:w-26 sm:h-26 mx-auto mb-4 rounded-full p-1 bg-gradient-to-tr from-[#C5A880] via-[#E5E1D8] to-[#9E7D4E] shadow-sm group-hover:scale-105 transition-transform duration-300 flex items-center justify-center cursor-pointer group/photo"
+                        >
+                          <div className="w-full h-full rounded-full bg-white overflow-hidden flex items-center justify-center relative">
                             {member.image ? (
-                              <img src={member.image} alt={member.name} className="w-full h-full object-cover" />
+                              <>
+                                <img src={member.image} alt={member.name} className="w-full h-full object-cover group-hover/photo:scale-105 transition-transform duration-300" />
+                                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/photo:opacity-100 transition-opacity flex items-center justify-center text-white">
+                                  <Search className="w-5 h-5 drop-shadow" />
+                                </div>
+                              </>
                             ) : (
                               <User className="w-10 h-10 sm:w-12 sm:h-12 text-[#C5A880] group-hover:text-[#9E7D4E] transition-colors" />
                             )}
@@ -2821,10 +2916,21 @@ export default function App() {
               <div className="grid grid-cols-1 md:grid-cols-12 gap-10 items-start">
                 
                 <div className="md:col-span-5 flex flex-col items-center text-center bg-[#FDFBF7] p-8 rounded-3xl border border-[#E5E1D8]">
-                  <div className="w-36 h-36 sm:w-44 sm:h-44 rounded-full p-2 bg-gradient-to-tr from-[#C5A880] via-[#E5E1D8] to-[#9E7D4E] shadow-xl mb-5 flex items-center justify-center">
-                    <div className="w-full h-full rounded-full bg-white overflow-hidden flex items-center justify-center">
+                  <div 
+                    onClick={() => {
+                      if (activeTeamMember.image) setLightboxImage({ url: activeTeamMember.image, name: activeTeamMember.name });
+                    }}
+                    title="Haz clic para ver la foto en grande"
+                    className="w-36 h-36 sm:w-44 sm:h-44 rounded-full p-2 bg-gradient-to-tr from-[#C5A880] via-[#E5E1D8] to-[#9E7D4E] shadow-xl mb-5 flex items-center justify-center cursor-pointer group/photo relative"
+                  >
+                    <div className="w-full h-full rounded-full bg-white overflow-hidden flex items-center justify-center relative">
                       {activeTeamMember.image ? (
-                        <img src={activeTeamMember.image} alt={activeTeamMember.name} className="w-full h-full object-cover" />
+                        <>
+                          <img src={activeTeamMember.image} alt={activeTeamMember.name} className="w-full h-full object-cover group-hover/photo:scale-105 transition-transform duration-300" />
+                          <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/photo:opacity-100 transition-opacity flex items-center justify-center text-white">
+                            <Search className="w-6 h-6 drop-shadow" />
+                          </div>
+                        </>
                       ) : (
                         <User className="w-20 h-20 sm:w-24 sm:h-24 text-[#C5A880]" />
                       )}
@@ -2948,8 +3054,39 @@ export default function App() {
 
       {/* ----------------- VISTA 6: PANEL DE ADMINISTRACIÓN (NO POP-UP) ----------------- */}
       {currentView === 'admin' && (
-        <div className="py-12 bg-[#FDFBF7] min-h-screen">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        !isAdmin ? (
+          <div className="py-24 bg-[#FDFBF7] min-h-screen flex items-center justify-center px-4">
+            <div className="max-w-md w-full bg-white p-8 rounded-3xl border border-red-200 shadow-xl text-center space-y-5 animate-in fade-in duration-300">
+              <div className="w-16 h-16 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
+                <AlertCircle className="w-8 h-8" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-serif-luxury font-bold text-[#111111]">
+                  Acceso Restringido
+                </h2>
+                <p className="text-xs text-[#666666] mt-2 leading-relaxed">
+                  Solo el correo administrativo autorizado (<span className="font-semibold text-[#111111]">{ADMIN_EMAIL}</span>) tiene permisos para ingresar a este panel.
+                </p>
+              </div>
+              <div className="pt-2 flex flex-col gap-2">
+                <button
+                  onClick={() => setIsLoginOpen(true)}
+                  className="w-full bg-[#9E7D4E] hover:bg-[#85653A] text-white text-xs font-bold uppercase tracking-wider py-3.5 rounded-xl transition-all shadow-md cursor-pointer"
+                >
+                  Iniciar Sesión como Administrador
+                </button>
+                <button
+                  onClick={() => setCurrentView('home')}
+                  className="w-full bg-[#111111] hover:bg-neutral-800 text-white text-xs font-bold uppercase tracking-wider py-3.5 rounded-xl transition-all shadow-md cursor-pointer"
+                >
+                  Volver al Inicio
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="py-12 bg-[#FDFBF7] min-h-screen">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
             
             {/* Panel Autenticado Directo */}
               <div className="space-y-8 animate-in fade-in duration-200">
@@ -3232,24 +3369,24 @@ export default function App() {
                       <div className="flex items-center space-x-2 pb-3 border-b border-[#E5E1D8]">
                         <MapPin className="w-5 h-5 text-[#9E7D4E]" />
                         <h3 className="text-base font-serif-luxury font-bold text-[#111111]">
-                          Añadir Nueva Zona
+                          Añadir Ciudad, Estado o Zona
                         </h3>
                       </div>
                       <p className="text-xs text-[#555555] leading-relaxed">
-                        Las zonas registradas aparecen automáticamente en los filtros de búsqueda del catálogo público.
+                        Cualquier ciudad, estado o zona registrada aparecerá automáticamente como variable en los filtros de búsqueda del catálogo público.
                       </p>
 
                       <form onSubmit={handleAddCity} className="space-y-4">
                         <div>
                           <label className="block text-xs font-bold uppercase tracking-wider text-[#111111] mb-1">
-                            Nombre de la Zona / Ciudad
+                            Nombre de la Ciudad / Estado / Región
                           </label>
                           <input 
                             type="text"
                             required
                             value={newCityInput}
                             onChange={(e) => setNewCityInput(e.target.value)}
-                            placeholder="Ej: Los Naranjos, El Hatillo..."
+                            placeholder="Ej: Valencia, Lechería, Maracaibo, Margarita..."
                             className="w-full bg-[#FDFBF7] border border-[#E5E1D8] px-4 py-3 rounded-xl text-xs focus:outline-none focus:border-[#9E7D4E] text-[#111111]"
                           />
                         </div>
@@ -3259,7 +3396,7 @@ export default function App() {
                           className="w-full bg-[#111111] hover:bg-[#222222] text-white text-xs font-bold tracking-widest uppercase py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 cursor-pointer"
                         >
                           <Plus className="w-4 h-4" />
-                          <span>REGISTRAR ZONA</span>
+                          <span>REGISTRAR CIUDAD / ZONA</span>
                         </button>
                       </form>
                     </div>
@@ -3269,10 +3406,10 @@ export default function App() {
                       <div className="flex items-center justify-between pb-4 border-b border-[#E5E1D8]">
                         <div>
                           <h3 className="text-base font-serif-luxury font-bold text-[#111111]">
-                            Zonas Activas en el Sistema
+                            Ciudades y Zonas Activas en el Sistema
                           </h3>
                           <p className="text-xs text-[#555555]">
-                            Variables de búsqueda geográfica disponibles actualmente
+                            Variables de búsqueda geográfica disponibles en toda la web
                           </p>
                         </div>
                         <span className="text-xs font-bold text-[#9E7D4E] bg-[#FDFBF7] px-3 py-1 rounded-full border border-[#E5E1D8]">
@@ -3503,6 +3640,7 @@ export default function App() {
 
           </div>
         </div>
+        )
       )}
 
       {/* ----------------- VISTA 7: DASHBOARD DE USUARIO (NO POP-UP) ----------------- */}
@@ -3928,35 +4066,45 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Ubicación y Ciudad/Zona */}
+              {/* Ubicación y Ciudad/Zona - Totalmente libre para cualquier ubicación */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-[#111111] mb-1">
-                    Ubicación Completa *
+                  <label className="block text-xs font-bold uppercase tracking-wider text-[#111111] mb-1 flex items-center justify-between">
+                    <span>Ubicación / Sector / Dirección *</span>
+                    <span className="text-[10px] text-gray-400 font-normal">Cualquier zona o país</span>
                   </label>
                   <input 
                     type="text"
                     required
                     value={propertyForm.location}
                     onChange={(e) => setPropertyForm({...propertyForm, location: e.target.value})}
-                    placeholder="Ej: Las Mercedes, Caracas"
+                    placeholder="Ej: Urb. El Viñedo / Lechería / Las Mercedes / Brickell"
                     className="w-full bg-[#FDFBF7] border border-[#E5E1D8] px-4 py-3 rounded-xl text-xs focus:outline-none focus:border-[#9E7D4E] text-[#111111]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-[#111111] mb-1">
-                    Zona / Ciudad (Filtro) *
+                  <label className="block text-xs font-bold uppercase tracking-wider text-[#111111] mb-1 flex items-center justify-between">
+                    <span>Ciudad / Estado / Región *</span>
+                    <span className="text-[10px] text-[#9E7D4E] font-semibold">Cualquiera (sin restricciones)</span>
                   </label>
-                  <select 
+                  <input 
+                    type="text"
+                    required
+                    list="admin-cities-list"
                     value={propertyForm.city}
                     onChange={(e) => setPropertyForm({...propertyForm, city: e.target.value})}
-                    className="w-full bg-[#FDFBF7] border border-[#E5E1D8] px-4 py-3 rounded-xl text-xs font-semibold text-[#111111] focus:outline-none focus:border-[#9E7D4E]"
-                  >
+                    placeholder="Escribe o selecciona: Valencia, Lechería, Caracas, Margarita..."
+                    className="w-full bg-[#FDFBF7] border border-[#E5E1D8] px-4 py-3 rounded-xl text-xs font-medium text-[#111111] focus:outline-none focus:border-[#9E7D4E]"
+                  />
+                  <datalist id="admin-cities-list">
                     {cities.map(c => (
-                      <option key={c} value={c}>{c}</option>
+                      <option key={c} value={c} />
                     ))}
-                  </select>
+                  </datalist>
+                  <p className="text-[10px] text-[#666666] mt-1">
+                    Puedes colocar cualquier ubicación del mundo (no solo Caracas). Se creará en los filtros de búsqueda automáticamente.
+                  </p>
                 </div>
               </div>
 
@@ -4103,7 +4251,7 @@ export default function App() {
             
             <div className="space-y-4 md:col-span-1">
               <img 
-                src="https://i.postimg.cc/3R3wvxwt/logoweb2.png" 
+                src="https://i.postimg.cc/FFZhQb4S/logoweb3.png" 
                 alt="Distinción Inmobiliaria Tavares" 
                 className="h-16 w-auto object-contain drop-shadow-md"
               />
@@ -4120,7 +4268,17 @@ export default function App() {
                 <li><button onClick={() => { setCurrentView('team'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-white transition-colors cursor-pointer">Nuestro Equipo</button></li>
                 <li><button onClick={() => { setCurrentView('home'); setTimeout(() => document.getElementById('servicios')?.scrollIntoView({ behavior: 'smooth' }), 50); }} className="hover:text-white transition-colors cursor-pointer">Servicios</button></li>
                 <li><button onClick={() => { setCurrentView('home'); setTimeout(() => document.getElementById('contacto')?.scrollIntoView({ behavior: 'smooth' }), 50); }} className="hover:text-white transition-colors cursor-pointer">Contacto</button></li>
-                <li><button onClick={() => { setCurrentView('admin'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-white transition-colors cursor-pointer flex items-center space-x-1 text-[#C5A880]"><span>Panel de Control</span></button></li>
+                {isAdmin && (
+                  <li>
+                    <button 
+                      onClick={() => { setCurrentView('admin'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} 
+                      className="hover:text-white transition-colors cursor-pointer flex items-center space-x-1.5 text-[#C5A880]"
+                    >
+                      <Shield className="w-3.5 h-3.5 text-[#C5A880]" />
+                      <span>Panel de Control</span>
+                    </button>
+                  </li>
+                )}
               </ul>
             </div>
 
@@ -4180,7 +4338,7 @@ export default function App() {
 
             <div className="text-center mb-6">
               <img 
-                src="https://i.postimg.cc/3R3wvxwt/logoweb2.png" 
+                src="https://i.postimg.cc/FFZhQb4S/logoweb3.png" 
                 alt="Logo" 
                 className="h-12 w-auto mx-auto mb-3 object-contain"
               />
@@ -4340,7 +4498,7 @@ export default function App() {
 
             <div className="text-center mb-6">
               <img 
-                src="https://i.postimg.cc/3R3wvxwt/logoweb2.png" 
+                src="https://i.postimg.cc/FFZhQb4S/logoweb3.png" 
                 alt="Logo" 
                 className="h-12 w-auto mx-auto mb-3 object-contain"
               />
@@ -4505,6 +4663,53 @@ export default function App() {
                 </button>
               </form>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ----------------- LIGHTBOX MODAL PARA FOTO DE INTEGRANTE ----------------- */}
+      {lightboxImage && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in"
+          onClick={() => setLightboxImage(null)}
+        >
+          <div 
+            className="relative max-w-2xl w-full bg-[#111111] rounded-3xl overflow-hidden border border-[#9E7D4E]/40 shadow-2xl p-6 sm:p-8 text-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button 
+              onClick={() => setLightboxImage(null)}
+              className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
+              aria-label="Cerrar"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            
+            <div className="mb-4">
+              <span className="text-[10px] uppercase font-bold tracking-widest text-[#C5A880] bg-[#C5A880]/10 px-3 py-1 rounded-full border border-[#C5A880]/30">
+                Fotografía Oficial
+              </span>
+              <h3 className="text-lg sm:text-2xl font-serif-luxury font-bold text-white tracking-wide mt-2">
+                {lightboxImage.name}
+              </h3>
+            </div>
+
+            <div className="flex items-center justify-center bg-black/60 rounded-2xl overflow-hidden p-2 border border-[#E5E1D8]/20 max-h-[70vh] shadow-inner">
+              <img 
+                src={lightboxImage.url} 
+                alt={lightboxImage.name} 
+                className="max-h-[65vh] w-auto object-contain rounded-xl shadow-2xl"
+              />
+            </div>
+
+            <div className="mt-6">
+              <button
+                onClick={() => setLightboxImage(null)}
+                className="px-8 py-3 rounded-full bg-gradient-to-r from-[#C5A880] to-[#9E7D4E] hover:opacity-90 text-white font-bold text-xs uppercase tracking-widest transition-all cursor-pointer shadow-lg"
+              >
+                Cerrar Vista
+              </button>
+            </div>
           </div>
         </div>
       )}
