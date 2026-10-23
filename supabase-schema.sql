@@ -1,14 +1,14 @@
 -- ==============================================================================
 -- 🚀 SUPER SCRIPT SQL COMPLETO - SUPABASE
 -- PROYECTO: DISTINCIÓN INMOBILIARIA TAVARES
--- (SIN RLS, ACCESO DIRECTO, SIN CONFIRMACIÓN DE EMAIL PARA REGISTRO/LOGIN)
+-- (SIN ERRORES DE COLUMNA FALTANTE, SIN BLOQUEOS RLS, ACCESO DIRECTO PARA ADMIN Y USUARIOS)
 -- ==============================================================================
 -- Instrucciones:
 -- 1. Copia y pega este script completo en el SQL Editor de tu panel de Supabase.
 -- 2. Haz clic en "RUN".
 -- ==============================================================================
 
--- 1. TABLA DE USUARIOS (Registro y Login Directo sin confirmación)
+-- 1. CREACIÓN DE TABLAS (SI NO EXISTEN)
 CREATE TABLE IF NOT EXISTS public.users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email TEXT UNIQUE NOT NULL,
@@ -21,21 +21,24 @@ CREATE TABLE IF NOT EXISTS public.users (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- 2. TABLA DE CONFIGURACIÓN DEL PANEL ADMINISTRATIVO
 CREATE TABLE IF NOT EXISTS public.admin_settings (
     id SERIAL PRIMARY KEY,
     admin_key TEXT NOT NULL DEFAULT 'admin2026',
     agency_name TEXT DEFAULT 'Distinción Inmobiliaria Tavares',
     contact_phone TEXT DEFAULT '04128850028',
-    contact_email TEXT DEFAULT 'contacto@tavaresinmobiliaria.com',
+    secondary_phone TEXT DEFAULT '04144912824',
+    contact_email TEXT DEFAULT 'distincioninmobiliariatavares@gmail.com',
+    tiktok TEXT DEFAULT '',
+    instagram TEXT DEFAULT '',
+    threads TEXT DEFAULT '',
+    facebook TEXT DEFAULT '',
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- 3. TABLA DE INMUEBLES / PROPIEDADES
 CREATE TABLE IF NOT EXISTS public.properties (
     id BIGINT PRIMARY KEY,
     title TEXT NOT NULL,
-    type TEXT NOT NULL, -- 'en-venta', 'en-alquiler', etc.
+    type TEXT NOT NULL,
     price TEXT NOT NULL,
     "rawPrice" NUMERIC DEFAULT 0,
     location TEXT NOT NULL,
@@ -51,21 +54,18 @@ CREATE TABLE IF NOT EXISTS public.properties (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- 4. TABLA DE ZONAS Y CIUDADES (Variables de búsqueda)
 CREATE TABLE IF NOT EXISTS public.zones (
     id BIGSERIAL PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- 5. TABLA DE CATEGORÍAS / TIPOS DE OPERACIÓN
 CREATE TABLE IF NOT EXISTS public.categories (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- 6. TABLA DE EQUIPO PROFESIONAL (Abogados y Asesores)
 CREATE TABLE IF NOT EXISTS public.team_members (
     id BIGINT PRIMARY KEY,
     name TEXT NOT NULL,
@@ -80,10 +80,10 @@ CREATE TABLE IF NOT EXISTS public.team_members (
     ci TEXT,
     instagram TEXT,
     tiktok TEXT,
+    image TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- 7. TABLA DE CITAS Y SOLICITUDES DE CONTACTO
 CREATE TABLE IF NOT EXISTS public.appointments (
     id BIGINT PRIMARY KEY,
     name TEXT NOT NULL,
@@ -96,9 +96,22 @@ CREATE TABLE IF NOT EXISTS public.appointments (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- ==============================================================================
--- 🔓 DESACTIVACIÓN TOTAL DE ROW LEVEL SECURITY (RLS) - SIN BLOQUEOS
--- ==============================================================================
+-- 2. ASEGURAR QUE TODAS LAS COLUMNAS EXISTAN (Prevención de Error 42703 "column does not exist")
+ALTER TABLE public.admin_settings ADD COLUMN IF NOT EXISTS secondary_phone TEXT DEFAULT '';
+ALTER TABLE public.admin_settings ADD COLUMN IF NOT EXISTS tiktok TEXT DEFAULT '';
+ALTER TABLE public.admin_settings ADD COLUMN IF NOT EXISTS instagram TEXT DEFAULT '';
+ALTER TABLE public.admin_settings ADD COLUMN IF NOT EXISTS threads TEXT DEFAULT '';
+ALTER TABLE public.admin_settings ADD COLUMN IF NOT EXISTS facebook TEXT DEFAULT '';
+
+ALTER TABLE public.team_members ADD COLUMN IF NOT EXISTS image TEXT DEFAULT '';
+ALTER TABLE public.team_members ADD COLUMN IF NOT EXISTS instagram TEXT DEFAULT '';
+ALTER TABLE public.team_members ADD COLUMN IF NOT EXISTS tiktok TEXT DEFAULT '';
+ALTER TABLE public.team_members ADD COLUMN IF NOT EXISTS whatsapp TEXT DEFAULT '';
+
+-- 3. ELIMINAR A GILBERTO DE LA BASE DE DATOS (SI EXISTÍA)
+DELETE FROM public.team_members WHERE id = 4 OR name LIKE '%Gilberto%';
+
+-- 4. DESACTIVAR ROW LEVEL SECURITY (RLS) PARA ACCESO SIN RESTRICCIONES DDL/DML
 ALTER TABLE public.users DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.admin_settings DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.properties DISABLE ROW LEVEL SECURITY;
@@ -107,102 +120,41 @@ ALTER TABLE public.categories DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.team_members DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.appointments DISABLE ROW LEVEL SECURITY;
 
--- Concesión de permisos universales (lectura, escritura, actualización y eliminación directa)
 GRANT ALL ON ALL TABLES IN SCHEMA public TO postgres, anon, authenticated, service_role;
 GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO postgres, anon, authenticated, service_role;
 GRANT ALL ON ALL ROUTINES IN SCHEMA public TO postgres, anon, authenticated, service_role;
 
--- ==============================================================================
--- 📦 DATOS INICIALES SEMILLAS (PRE-POBLACIÓN DE LA WEB)
--- ==============================================================================
+-- 5. INSERTAR / ACTUALIZAR DATOS INICIALES
 
--- 1. Administrador por defecto y configuración
-INSERT INTO public.admin_settings (id, admin_key, agency_name, contact_phone, contact_email)
-VALUES (1, 'admin2026', 'Distinción Inmobiliaria Tavares', '04128850028', 'contacto@tavaresinmobiliaria.com')
-ON CONFLICT (id) DO NOTHING;
+-- Configuración de Administración
+INSERT INTO public.admin_settings (id, admin_key, agency_name, contact_phone, secondary_phone, contact_email)
+VALUES (1, 'admin2026', 'Distinción Inmobiliaria Tavares', '04128850028', '04144912824', 'distincioninmobiliariatavares@gmail.com')
+ON CONFLICT (id) DO UPDATE SET 
+    contact_email = EXCLUDED.contact_email,
+    contact_phone = EXCLUDED.contact_phone;
 
+-- Usuario Administrador Principal
 INSERT INTO public.users (email, name, role, phone)
-VALUES ('admin@tavares.com', 'Administrador Principal', 'admin', '04128850028')
-ON CONFLICT (email) DO NOTHING;
+VALUES ('distincioninmobiliariatavares@gmail.com', 'Administradora Principal', 'admin', '04128850028')
+ON CONFLICT (email) DO UPDATE SET role = 'admin';
 
--- 2. Zonas y Ciudades
+-- Zonas y Ciudades de Búsqueda
 INSERT INTO public.zones (name) VALUES
-('Las Mercedes'),
-('Altamira'),
-('Campo Alegre'),
-('El Rosal'),
-('Valle Arriba'),
-('La Castellana'),
-('Los Palos Grandes'),
-('Prados del Este'),
-('Chacao')
+('Caracas'), ('Valencia'), ('Lechería'), ('Maracaibo'), 
+('Margarita'), ('Barquisimeto'), ('Maracay'), ('Las Mercedes'), 
+('Altamira'), ('Campo Alegre'), ('El Rosal'), ('Valle Arriba'), 
+('La Castellana'), ('Los Palos Grandes'), ('Prados del Este'), ('Chacao')
 ON CONFLICT (name) DO NOTHING;
 
--- 3. Categorías / Tipos de Operación
+-- Tipos de Operación / Categorías
 INSERT INTO public.categories (id, name) VALUES
 ('en-venta', 'En Venta'),
 ('en-alquiler', 'En Alquiler'),
 ('preventa', 'En Preventa')
 ON CONFLICT (id) DO NOTHING;
 
--- 4. Inmuebles Iniciales
-INSERT INTO public.properties (id, title, type, price, "rawPrice", location, city, beds, baths, sqm, image, images, "videoUrl", description, features)
-VALUES 
-(
-  1, 
-  'Casa de Lujo en Las Mercedes', 
-  'en-venta', 
-  '$ 850.000', 
-  850000, 
-  'Las Mercedes, Caracas', 
-  'Las Mercedes', 
-  4, 
-  4.5, 
-  450, 
-  'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=1000',
-  '["https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=1000", "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=1000", "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&q=80&w=1000"]'::jsonb,
-  'https://www.youtube.com/embed/ScMzIvxBSi4',
-  'Espectacular casa de lujo ubicada en el corazón de Las Mercedes, con acabados de primera, amplios espacios sociales, jardín privado, seguridad 24/7 y excelente iluminación natural.',
-  '["Jardín privado", "Seguridad 24/7", "Estacionamiento techado", "Pisos de mármol", "Cocina equipada"]'::jsonb
-),
-(
-  2, 
-  'Apartamento en Altamira', 
-  'en-alquiler', 
-  '$ 2.500 / mes', 
-  2500, 
-  'Altamira, Caracas', 
-  'Altamira', 
-  3, 
-  3, 
-  180, 
-  'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&q=80&w=1000',
-  '["https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&q=80&w=1000", "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&q=80&w=1000"]'::jsonb,
-  'https://www.youtube.com/embed/ScMzIvxBSi4',
-  'Moderno apartamento amoblado en Altamira con vista panorámica al Ávila, planta eléctrica total, ascensor privado y acabados modernos de alta gama.',
-  '["Vista al Ávila", "Planta eléctrica", "Ascensor privado", "Amoblado de lujo", "Maletero"]'::jsonb
-),
-(
-  3, 
-  'Penthouse en Campo Alegre', 
-  'en-venta', 
-  '$ 1.200.000', 
-  1200000, 
-  'Campo Alegre, Caracas', 
-  'Campo Alegre', 
-  4, 
-  5, 
-  620, 
-  'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&q=80&w=1000',
-  '["https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&q=80&w=1000"]'::jsonb,
-  'https://www.youtube.com/embed/ScMzIvxBSi4',
-  'Exclusivo penthouse dúplex en Campo Alegre con terraza privada de 360 grados, acabados de ultra lujo, doble altura y máxima seguridad.',
-  '["Terraza 360", "Doble altura", "Vigilancia privada", "4 puestos techados", "Jacuzzi"]'::jsonb
-)
-ON CONFLICT (id) DO NOTHING;
-
--- 5. Equipo Oficial (Abogados y Asesores)
-INSERT INTO public.team_members (id, name, role, category, bio, phone, whatsapp, specialty, slogan, email, instagram, tiktok, ci)
+-- Equipo Oficial (Abogados y Asesores)
+INSERT INTO public.team_members (id, name, role, category, bio, phone, whatsapp, specialty, image, email, instagram, tiktok, ci)
 VALUES
 (
   2,
@@ -213,18 +165,7 @@ VALUES
   '0414-4912824',
   '+584144912824',
   'Especialista en Negocios Inmobiliarios & Blindaje Jurídico Integral',
-  NULL, NULL, NULL, NULL, NULL
-),
-(
-  4,
-  'Gilberto José Sánchez',
-  'Economista, Contador Público y Abogado',
-  'abogado',
-  'Gilberto José Sánchez es un profesional de alto valor con una sólida y multidisciplinaria preparación académica como Economista, Contador Público y Abogado. Cuenta con amplias destrezas en el ramo inmobiliario y una destacada capacidad para desenvolverse con el público, construyendo relaciones de confianza basadas en la empatía y la excelencia. Su gestión garantiza una absoluta transparencia jurídica y rigurosidad financiera en cada proceso, protegiendo los intereses de cada cliente en todas las etapas de la negociación. Con un liderazgo orientado a resultados, Gilberto aporta el conocimiento y la visión estratégica necesarios para transformar cada negociación en un sueño realizado.',
-  '0412-0370903',
-  '+584120370903',
-  'Economía, Contabilidad & Derecho Inmobiliario Estratégico Multidisciplinario',
-  'Tu aliado estratégico: economía, contabilidad y derecho en un solo lugar.',
+  'https://i.ibb.co/V0sXFRyj/Joselyntavares.png',
   NULL, NULL, NULL, NULL
 ),
 (
@@ -236,7 +177,7 @@ VALUES
   '0414-3820097',
   '+584143820097',
   'Práctica Jurídica, Asesoría Legal Inmobiliaria & Liderazgo',
-  NULL,
+  'https://i.ibb.co/QFWNyT2q/Michell.jpg',
   'Abgmezzadri@gmail.com',
   'Abgmezzadri',
   'Abogadamezzadri',
@@ -251,7 +192,8 @@ VALUES
   '+58 412-5264370',
   '+584125264370',
   'Derecho Civil, Mercantil, Corporativo, Registros & Tramitación Legal Completa',
-  NULL, NULL, NULL, NULL, NULL
+  'https://i.postimg.cc/PJtQ4tnX/IMG-20260928-WA0182-jpg.jpg',
+  NULL, NULL, NULL, NULL
 ),
 (
   9,
@@ -262,7 +204,8 @@ VALUES
   '+58 412-3440267',
   '+584123440267',
   'Derecho Procesal Civil, Redacción Jurídica & Gestión de Trámites Patrimoniales',
-  NULL, NULL, NULL, NULL, NULL
+  'https://i.ibb.co/3yS3ddZR/Andres-Barrios.jpg',
+  NULL, NULL, NULL, NULL
 ),
 (
   1,
@@ -273,7 +216,8 @@ VALUES
   '0412-8850028',
   '+584128850028',
   'Dirección de Negocios Inmobiliarios & Gestión Financiera de Alto Nivel',
-  NULL, NULL, NULL, NULL, NULL
+  'https://i.postimg.cc/C1ggTKP4/Whats-App-Image-2026-10-13-at-09-07-17.jpg',
+  NULL, NULL, NULL, NULL
 ),
 (
   3,
@@ -284,7 +228,8 @@ VALUES
   '0424-3287033',
   '+584243287033',
   'Auditoría, Análisis Financiero, Evaluación de Riesgos & Negociaciones de Alto Valor',
-  NULL, NULL, NULL, NULL, NULL
+  'https://i.ibb.co/dJm7yyVH/Leonard.jpg',
+  NULL, NULL, NULL, NULL
 ),
 (
   5,
@@ -295,7 +240,8 @@ VALUES
   '+58 414-9448980',
   '+584149448980',
   'Ventas de Alto Impacto, Captación Inmobiliaria & Conexión con el Cliente',
-  NULL, NULL, NULL, NULL, NULL
+  'https://i.ibb.co/8RNDcVj/Liliana.jpg',
+  NULL, NULL, NULL, NULL
 ),
 (
   8,
@@ -306,7 +252,8 @@ VALUES
   '+58 412-4660627',
   '+584124660627',
   'Valoración de Propiedades, Retorno de Inversión (ROI), Costos & Intermediación Segura',
-  NULL, NULL, NULL, NULL, '15.734.964'
+  'https://i.ibb.co/27X8BHZJ/Yusmarlyn.jpg',
+  NULL, NULL, NULL, '15.734.964'
 ),
 (
   10,
@@ -317,7 +264,8 @@ VALUES
   '0412-4209633',
   '+584124209633',
   'Ventas Inmobiliarias, Atención al Cliente & Negociaciones Fluidas',
-  NULL, NULL, NULL, NULL, NULL
+  'https://i.ibb.co/NctXgF3/Daylin.jpg',
+  NULL, NULL, NULL, NULL
 ),
 (
   11,
@@ -328,31 +276,41 @@ VALUES
   '+58 414-4947960',
   '+584144947960',
   'Cierres de Negocios de Alto Nivel, Estrategia Comercial & Gestión de Inversionistas',
-  NULL, NULL, NULL, NULL, NULL
-)
-ON CONFLICT (id) DO NOTHING;
-
--- 6. Solicitudes de Citas Iniciales
-INSERT INTO public.appointments (id, name, phone, email, date, service, message, "createdAt")
-VALUES
-(
-  1,
-  'Dra. Carolina Mendoza',
-  '0414-2345678',
-  'carolina.mendoza@email.com',
-  '2026-10-02',
-  'Compra de Propiedad',
-  'Interesada en coordinar visita a la quinta de Las Mercedes.',
-  '28 Sep 2026'
+  'https://i.ibb.co/7dDJrgjB/Jaime-herrera.jpg',
+  NULL, NULL, NULL, NULL
 ),
 (
-  2,
-  'Ing. Roberto Albornoz',
-  '0412-9876543',
-  'roberto.albornoz@empresa.com',
-  '2026-10-04',
-  'Auditoría Documental',
-  'Revisión jurídica para adquisición de oficina corporativa.',
-  '29 Sep 2026'
+  12,
+  'Lic. Nicole Machado',
+  'Asesora Inmobiliaria',
+  'asesor',
+  'Asesora inmobiliaria altamente calificada y orientada al cliente. Destaca por su dinamismo, ética profesional y compromiso constante en brindar soluciones habitacionales e de inversión adaptadas a las necesidades de cada comprador y vendedor.',
+  '+58 412-8850028',
+  '+584128850028',
+  'Asesoría Comercial & Soluciones Habitacionales',
+  'https://i.ibb.co/j9L3v6YW/Nicol.jpg',
+  NULL, NULL, NULL, NULL
+),
+(
+  13,
+  'Lic. Marianela Machado',
+  'Asesora Inmobiliaria en Distinción Inmobiliaria Tavares',
+  'asesor',
+  'Licenciada con amplia trayectoria y experiencia comprobada en el área de ventas y relaciones interpersonales. Su habilidad para conectar de manera empática y profesional con los clientes le permite construir relaciones sólidas y de confianza, fundamentales para garantizar negociaciones fluidas y ventas altamente exitosas. Con residencia y dominio del mercado en el Estado Aragua, ofrece una asesoría integral, transparente y personalizada para la compra, venta o alquiler de sus inmuebles.',
+  '+58 414-4885686',
+  '+584144885686',
+  'Ventas de Alto Impacto, Mercado Aragua & Captación Inmobiliaria',
+  'https://i.postimg.cc/4xnwqN7d/image.png',
+  NULL, NULL, NULL, NULL
 )
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name,
+  role = EXCLUDED.role,
+  category = EXCLUDED.category,
+  bio = EXCLUDED.bio,
+  phone = EXCLUDED.phone,
+  whatsapp = EXCLUDED.whatsapp,
+  specialty = EXCLUDED.specialty,
+  image = EXCLUDED.image;
+
+-- FIN DEL SCRIPT SQL COMPLETO

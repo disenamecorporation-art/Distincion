@@ -44,7 +44,7 @@ interface TeamMember {
   image?: string;
 }
 
-const teamMembers: TeamMember[] = [
+const initialTeamMembers: TeamMember[] = [
   // --- CUERPO LEGAL & ABOGADOS ---
   {
     id: 2,
@@ -57,7 +57,6 @@ const teamMembers: TeamMember[] = [
     specialty: "Especialista en Negocios Inmobiliarios & Blindaje Jurídico Integral",
     image: "https://i.ibb.co/V0sXFRyj/Joselyntavares.png"
   },
-
   {
     id: 6,
     name: "Abog. Michellisabel Mezzadri",
@@ -81,7 +80,7 @@ const teamMembers: TeamMember[] = [
     phone: "+58 412-5264370",
     whatsapp: "+584125264370",
     specialty: "Derecho Civil, Mercantil, Corporativo, Registros & Tramitación Legal Completa",
-    image: "https://i.ibb.co/j9L3v6YW/Nicol.jpg"
+    image: "https://i.postimg.cc/PJtQ4tnX/IMG-20260928-WA0182-jpg.jpg"
   },
   {
     id: 9,
@@ -162,6 +161,28 @@ const teamMembers: TeamMember[] = [
     whatsapp: "+584144947960",
     specialty: "Cierres de Negocios de Alto Nivel, Estrategia Comercial & Gestión de Inversionistas",
     image: "https://i.ibb.co/7dDJrgjB/Jaime-herrera.jpg"
+  },
+  {
+    id: 12,
+    name: "Lic. Nicole Machado",
+    role: "Asesora Inmobiliaria",
+    category: "asesor",
+    bio: "Asesora inmobiliaria altamente calificada y orientada al cliente. Destaca por su dinamismo, ética profesional y compromiso constante en brindar soluciones habitacionales e de inversión adaptadas a las necesidades de cada comprador y vendedor.",
+    phone: "+58 412-8850028",
+    whatsapp: "+584128850028",
+    specialty: "Asesoría Comercial & Soluciones Habitacionales",
+    image: "https://i.ibb.co/j9L3v6YW/Nicol.jpg"
+  },
+  {
+    id: 13,
+    name: "Lic. Marianela Machado",
+    role: "Asesora Inmobiliaria en Distinción Inmobiliaria Tavares",
+    category: "asesor",
+    bio: "Licenciada con amplia trayectoria y experiencia comprobada en el área de ventas y relaciones interpersonales. Su habilidad para conectar de manera empática y profesional con los clientes le permite construir relaciones sólidas y de confianza, fundamentales para garantizar negociaciones fluidas y ventas altamente exitosas. Con residencia y dominio del mercado en el Estado Aragua, ofrece una asesoría integral, transparente y personalizada para la compra, venta o alquiler de sus inmuebles.",
+    phone: "+58 414-4885686",
+    whatsapp: "+584144885686",
+    specialty: "Ventas de Alto Impacto, Mercado Aragua & Captación Inmobiliaria",
+    image: "https://i.postimg.cc/4xnwqN7d/image.png"
   }
 ];
 
@@ -422,6 +443,7 @@ export default function App() {
 
   // Estados de propiedades y variables de búsqueda
   const [properties, setProperties] = useState<Property[]>(initialProperties);
+  const [teamMembersList, setTeamMembersList] = useState<TeamMember[]>(initialTeamMembers);
   const [cities, setCities] = useState<string[]>(initialCities);
   const [propertyTypes, setPropertyTypes] = useState<{ id: string; name: string }[]>([
     { id: 'en-venta', name: 'En Venta' },
@@ -487,12 +509,33 @@ export default function App() {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [adminPasswordInput, setAdminPasswordInput] = useState('');
   const [adminLoginError, setAdminLoginError] = useState('');
-  const [adminActiveTab, setAdminActiveTab] = useState<'properties' | 'zones' | 'categories' | 'appointments'>('properties');
+  const [adminActiveTab, setAdminActiveTab] = useState<'properties' | 'zones' | 'categories' | 'appointments' | 'team' | 'guide'>('properties');
   const [adminSearch, setAdminSearch] = useState('');
   const [isPropertyModalOpen, setIsPropertyModalOpen] = useState(false);
   const [editingPropertyId, setEditingPropertyId] = useState<number | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
   const [adminNotification, setAdminNotification] = useState<string | null>(null);
+
+  // Estados para CRUD de Equipo / Asesores
+  const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
+  const [editingTeamId, setEditingTeamId] = useState<number | null>(null);
+  const [deleteConfirmTeamId, setDeleteConfirmTeamId] = useState<number | null>(null);
+
+  const [teamForm, setTeamForm] = useState({
+    name: '',
+    role: '',
+    category: 'asesor' as 'abogado' | 'asesor',
+    bio: '',
+    phone: '',
+    whatsapp: '',
+    email: '',
+    specialty: '',
+    slogan: '',
+    ci: '',
+    instagram: '',
+    tiktok: '',
+    image: ''
+  });
 
   // Formulario de Inmueble
   const [propertyForm, setPropertyForm] = useState({
@@ -641,6 +684,30 @@ export default function App() {
 
         if (!appsError && appsData && appsData.length > 0) {
           setAppointmentsList(appsData);
+        }
+
+        const { data: teamData, error: teamError } = await supabase
+          .from('team_members')
+          .select('*')
+          .order('id', { ascending: true });
+
+        if (!teamError && teamData && teamData.length > 0) {
+          setTeamMembersList(teamData.map(t => ({
+            id: Number(t.id),
+            name: t.name,
+            role: t.role,
+            category: (t.category === 'abogado' ? 'abogado' : 'asesor') as 'abogado' | 'asesor',
+            bio: t.bio || '',
+            phone: t.phone || '',
+            whatsapp: t.whatsapp || '',
+            email: t.email || '',
+            specialty: t.specialty || '',
+            slogan: t.slogan || '',
+            ci: t.ci || '',
+            instagram: t.instagram || '',
+            tiktok: t.tiktok || '',
+            image: t.image || 'https://i.postimg.cc/C1ggTKP4/Whats-App-Image-2026-10-13-at-09-07-17.jpg'
+          })));
         }
       } catch (err) {
         console.error("Error cargando datos de Supabase:", err);
@@ -900,6 +967,94 @@ export default function App() {
       await supabase.from('appointments').delete().eq('id', id);
     }
     showAdminToast('Registro de solicitud eliminado');
+  };
+
+  // --- GESTIÓN DE EQUIPO / ASESORES (CRUD) ---
+  const handleOpenNewTeamMember = () => {
+    setEditingTeamId(null);
+    setTeamForm({
+      name: '',
+      role: 'Asesora Inmobiliaria',
+      category: 'asesor',
+      bio: '',
+      phone: '+58 ',
+      whatsapp: '+58 ',
+      email: '',
+      specialty: '',
+      slogan: '',
+      ci: '',
+      instagram: '',
+      tiktok: '',
+      image: 'https://i.postimg.cc/4xnwqN7d/image.png'
+    });
+    setIsTeamModalOpen(true);
+  };
+
+  const handleOpenEditTeamMember = (member: TeamMember) => {
+    setEditingTeamId(member.id);
+    setTeamForm({
+      name: member.name || '',
+      role: member.role || '',
+      category: member.category || 'asesor',
+      bio: member.bio || '',
+      phone: member.phone || '',
+      whatsapp: member.whatsapp || '',
+      email: member.email || '',
+      specialty: member.specialty || '',
+      slogan: member.slogan || '',
+      ci: member.ci || '',
+      instagram: member.instagram || '',
+      tiktok: member.tiktok || '',
+      image: member.image || ''
+    });
+    setIsTeamModalOpen(true);
+  };
+
+  const handleSaveTeamMember = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!teamForm.name || !teamForm.phone) return;
+
+    const finalMember: TeamMember = {
+      id: editingTeamId ? editingTeamId : (teamMembersList.length > 0 ? Math.max(...teamMembersList.map(t => t.id)) + 1 : 1),
+      name: teamForm.name.trim(),
+      role: teamForm.role.trim() || 'Asesor Inmobiliario',
+      category: teamForm.category,
+      bio: teamForm.bio.trim() || 'Profesional inmobiliario en Distinción Inmobiliaria Tavares.',
+      phone: teamForm.phone.trim(),
+      whatsapp: teamForm.whatsapp.trim() || teamForm.phone.trim(),
+      email: teamForm.email.trim() || undefined,
+      specialty: teamForm.specialty.trim() || undefined,
+      slogan: teamForm.slogan.trim() || undefined,
+      ci: teamForm.ci.trim() || undefined,
+      instagram: teamForm.instagram.trim() || undefined,
+      tiktok: teamForm.tiktok.trim() || undefined,
+      image: teamForm.image.trim() || 'https://i.postimg.cc/C1ggTKP4/Whats-App-Image-2026-10-13-at-09-07-17.jpg'
+    };
+
+    if (editingTeamId) {
+      setTeamMembersList(prev => prev.map(m => m.id === editingTeamId ? finalMember : m));
+      if (isSupabaseConfigured && supabase) {
+        await supabase.from('team_members').update(finalMember).eq('id', editingTeamId);
+      }
+      showAdminToast('Integrante del equipo actualizado exitosamente');
+    } else {
+      setTeamMembersList(prev => [...prev, finalMember]);
+      if (isSupabaseConfigured && supabase) {
+        await supabase.from('team_members').insert([finalMember]);
+      }
+      showAdminToast('Nuevo integrante añadido al equipo');
+    }
+
+    setIsTeamModalOpen(false);
+  };
+
+  const handleDeleteTeamMember = async (id: number) => {
+    setTeamMembersList(prev => prev.filter(m => m.id !== id));
+    if (isSupabaseConfigured && supabase) {
+      await supabase.from('team_members').delete().eq('id', id);
+    }
+    setDeleteConfirmTeamId(null);
+    showAdminToast('Integrante del equipo eliminado');
   };
 
   const filteredShopProperties = properties.filter(p => {
@@ -2014,7 +2169,7 @@ export default function App() {
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
-                  {teamMembers.filter(m => m.category === 'abogado').map((member) => (
+                  {teamMembersList.filter(m => m.category === 'abogado').map((member) => (
                     <div 
                       key={member.id}
                       onClick={() => {
@@ -2077,7 +2232,7 @@ export default function App() {
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6">
-                  {teamMembers.filter(m => m.category === 'asesor').map((member) => (
+                  {teamMembersList.filter(m => m.category === 'asesor').map((member) => (
                     <div 
                       key={member.id}
                       onClick={() => {
@@ -2672,7 +2827,7 @@ export default function App() {
                       : 'bg-white text-[#555555] border border-[#E5E1D8] hover:border-[#9E7D4E]'
                   }`}
                 >
-                  Todos los Profesionales ({teamMembers.length})
+                  Todos los Profesionales ({teamMembersList.length})
                 </button>
                 <button
                   onClick={() => setTeamFilter('abogado')}
@@ -2683,7 +2838,7 @@ export default function App() {
                   }`}
                 >
                   <Scale className="w-4 h-4" />
-                  <span>Cuerpo Legal & Abogados ({teamMembers.filter(m => m.category === 'abogado').length})</span>
+                  <span>Cuerpo Legal & Abogados ({teamMembersList.filter(m => m.category === 'abogado').length})</span>
                 </button>
                 <button
                   onClick={() => setTeamFilter('asesor')}
@@ -2694,7 +2849,7 @@ export default function App() {
                   }`}
                 >
                   <Building2 className="w-4 h-4" />
-                  <span>Asesores Inmobiliarios ({teamMembers.filter(m => m.category === 'asesor').length})</span>
+                  <span>Asesores Inmobiliarios ({teamMembersList.filter(m => m.category === 'asesor').length})</span>
                 </button>
               </div>
             </div>
@@ -2717,12 +2872,12 @@ export default function App() {
                     </div>
                   </div>
                   <span className="self-start sm:self-center text-xs font-bold uppercase tracking-wider bg-[#FDFBF7] text-[#9E7D4E] px-3.5 py-1.5 rounded-full border border-[#E5E1D8]">
-                    {teamMembers.filter(m => m.category === 'abogado').length} Especialistas
+                    {teamMembersList.filter(m => m.category === 'abogado').length} Especialistas
                   </span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-                  {teamMembers.filter(m => m.category === 'abogado').map((member) => (
+                  {teamMembersList.filter(m => m.category === 'abogado').map((member) => (
                     <div 
                       key={member.id}
                       onClick={() => {
@@ -2814,12 +2969,12 @@ export default function App() {
                     </div>
                   </div>
                   <span className="self-start sm:self-center text-xs font-bold uppercase tracking-wider bg-[#FDFBF7] text-[#9E7D4E] px-3.5 py-1.5 rounded-full border border-[#E5E1D8]">
-                    {teamMembers.filter(m => m.category === 'asesor').length} Asesores
+                    {teamMembersList.filter(m => m.category === 'asesor').length} Asesores
                   </span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
-                  {teamMembers.filter(m => m.category === 'asesor').map((member) => (
+                  {teamMembersList.filter(m => m.category === 'asesor').map((member) => (
                     <div 
                       key={member.id}
                       onClick={() => {
@@ -3231,6 +3386,30 @@ export default function App() {
                     <Calendar className="w-4 h-4" />
                     <span>Citas y Solicitudes ({appointmentsList.length})</span>
                   </button>
+
+                  <button
+                    onClick={() => setAdminActiveTab('team')}
+                    className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all flex items-center space-x-2 cursor-pointer ${
+                      adminActiveTab === 'team'
+                        ? 'bg-[#9E7D4E] text-white shadow-md'
+                        : 'bg-white text-[#555555] border border-[#E5E1D8] hover:border-[#9E7D4E]'
+                    }`}
+                  >
+                    <Users className="w-4 h-4" />
+                    <span>Equipo y Asesores ({teamMembersList.length})</span>
+                  </button>
+
+                  <button
+                    onClick={() => setAdminActiveTab('guide')}
+                    className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all flex items-center space-x-2 cursor-pointer ${
+                      adminActiveTab === 'guide'
+                        ? 'bg-[#2C2A29] text-white shadow-md'
+                        : 'bg-[#FDFBF7] text-[#9E7D4E] border border-[#9E7D4E]/40 hover:border-[#9E7D4E]'
+                    }`}
+                  >
+                    <FileText className="w-4 h-4 text-[#C5A880]" />
+                    <span>📖 Tutorial Cargar Inmuebles</span>
+                  </button>
                 </div>
 
                 {/* CONTENIDO PESTAÑA 1: INMUEBLES */}
@@ -3633,6 +3812,238 @@ export default function App() {
                         ))}
                       </div>
                     )}
+                  </div>
+                )}
+
+                {/* CONTENIDO PESTAÑA 5: EQUIPO Y ASESORES (CRUD) */}
+                {adminActiveTab === 'team' && (
+                  <div className="space-y-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-[#E5E1D8] shadow-xs">
+                      <div>
+                        <h3 className="text-base font-serif-luxury font-bold text-[#111111]">
+                          Gestión de Equipo, Abogados y Asesores
+                        </h3>
+                        <p className="text-xs text-[#555555]">
+                          Añade, edita información, cambia fotos o elimina integrantes del equipo de trabajo.
+                        </p>
+                      </div>
+
+                      <button 
+                        onClick={handleOpenNewTeamMember}
+                        className="inline-flex items-center justify-center space-x-2 bg-gradient-to-r from-[#C5A880] via-[#B3966D] to-[#9E7D4E] hover:opacity-95 text-white text-xs font-bold tracking-wider uppercase px-6 py-3 rounded-xl shadow-md transition-all cursor-pointer"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>AÑADIR NUEVO INTEGRANTE</span>
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {teamMembersList.map((member) => (
+                        <div 
+                          key={member.id}
+                          className="bg-white rounded-3xl border border-[#E5E1D8] shadow-sm hover:shadow-lg transition-all p-6 flex flex-col justify-between"
+                        >
+                          <div>
+                            <div className="flex items-center space-x-4 mb-4">
+                              <div 
+                                onClick={() => {
+                                  if (member.image) setLightboxImage({ url: member.image, name: member.name });
+                                }}
+                                className="w-16 h-16 rounded-full p-0.5 bg-gradient-to-tr from-[#C5A880] to-[#9E7D4E] shrink-0 cursor-pointer overflow-hidden relative group/avatar"
+                                title="Ver foto ampliada"
+                              >
+                                <img src={member.image} alt={member.name} className="w-full h-full object-cover rounded-full" />
+                                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/avatar:opacity-100 transition-opacity flex items-center justify-center text-white">
+                                  <Search className="w-4 h-4" />
+                                </div>
+                              </div>
+
+                              <div className="flex-1 min-w-0">
+                                <span className={`text-[9px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full inline-block mb-1 ${
+                                  member.category === 'abogado' ? 'bg-amber-100 text-amber-900' : 'bg-blue-100 text-blue-900'
+                                }`}>
+                                  {member.category === 'abogado' ? '⚖️ Abogado' : '🏢 Asesor'}
+                                </span>
+                                <h4 className="text-sm font-bold text-[#111111] truncate">{member.name}</h4>
+                                <p className="text-xs text-[#9E7D4E] font-medium truncate">{member.role}</p>
+                              </div>
+                            </div>
+
+                            <p className="text-xs text-[#555555] line-clamp-3 leading-relaxed mb-4">
+                              {member.bio}
+                            </p>
+
+                            <div className="text-xs text-[#333333] space-y-1 bg-[#FDFBF7] p-3 rounded-xl border border-[#E5E1D8]/60 mb-4">
+                              <p className="font-semibold flex items-center space-x-1.5">
+                                <Phone className="w-3.5 h-3.5 text-[#9E7D4E]" />
+                                <span>{member.phone}</span>
+                              </p>
+                              {member.email && (
+                                <p className="truncate text-gray-500">{member.email}</p>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between gap-3 pt-3 border-t border-[#E5E1D8]/60">
+                            <button 
+                              onClick={() => handleOpenEditTeamMember(member)}
+                              className="flex-1 inline-flex items-center justify-center space-x-1.5 bg-[#FDFBF7] hover:bg-[#F5F1EB] text-[#111111] border border-[#E5E1D8] text-xs font-bold uppercase py-2.5 rounded-xl transition-all cursor-pointer"
+                            >
+                              <Edit3 className="w-3.5 h-3.5 text-[#9E7D4E]" />
+                              <span>Editar</span>
+                            </button>
+
+                            {deleteConfirmTeamId === member.id ? (
+                              <div className="flex items-center space-x-1">
+                                <button 
+                                  onClick={() => handleDeleteTeamMember(member.id)}
+                                  className="bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold uppercase px-2.5 py-2.5 rounded-xl cursor-pointer"
+                                >
+                                  Sí, borrar
+                                </button>
+                                <button 
+                                  onClick={() => setDeleteConfirmTeamId(null)}
+                                  className="bg-gray-200 text-gray-700 text-[10px] px-2 py-2.5 rounded-xl cursor-pointer"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            ) : (
+                              <button 
+                                onClick={() => setDeleteConfirmTeamId(member.id)}
+                                className="inline-flex items-center justify-center p-2.5 text-red-600 hover:bg-red-50 rounded-xl border border-red-200 transition-colors cursor-pointer"
+                                title="Eliminar integrante"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* CONTENIDO PESTAÑA 6: TUTORIAL Y GUÍA DE CARGA DE INMUEBLES E IMÁGENES */}
+                {adminActiveTab === 'guide' && (
+                  <div className="bg-white p-6 sm:p-10 rounded-3xl border border-[#E5E1D8] shadow-sm space-y-8">
+                    
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#E5E1D8]">
+                      <div className="flex items-center space-x-4">
+                        <div className="w-14 h-14 rounded-2xl bg-[#9E7D4E]/10 flex items-center justify-center text-[#9E7D4E] shrink-0">
+                          <FileText className="w-7 h-7" />
+                        </div>
+                        <div>
+                          <h2 className="text-xl sm:text-2xl font-serif-luxury font-bold text-[#111111]">
+                            Tutorial Paso a Paso: Cómo Cargar Inmuebles e Imágenes
+                          </h2>
+                          <p className="text-xs sm:text-sm text-[#555555] mt-1">
+                            Guía completa e interactiva para publicar propiedades con múltiples fotos utilizando PostImages.
+                          </p>
+                        </div>
+                      </div>
+
+                      <a 
+                        href="https://postimages.org/es/" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center space-x-2 bg-[#111111] hover:bg-[#222222] text-white text-xs font-bold uppercase tracking-wider px-5 py-3 rounded-xl shadow-md transition-all cursor-pointer self-start sm:self-center shrink-0"
+                      >
+                        <span>Abrir PostImages.org/es/ ↗</span>
+                      </a>
+                    </div>
+
+                    {/* Pasos explicativos */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      
+                      {/* PASO 1 */}
+                      <div className="p-6 bg-[#FDFBF7] rounded-3xl border border-[#E5E1D8] space-y-3 relative overflow-hidden">
+                        <div className="w-8 h-8 rounded-full bg-[#9E7D4E] text-white font-bold text-sm flex items-center justify-center shadow-sm">
+                          1
+                        </div>
+                        <h3 className="text-base font-bold text-[#111111]">
+                          Ir a PostImages y Seleccionar las Fotos
+                        </h3>
+                        <p className="text-xs text-[#555555] leading-relaxed">
+                          Accede a <a href="https://postimages.org/es/" target="_blank" rel="noopener noreferrer" className="text-[#9E7D4E] font-bold underline">postimages.org/es/</a>. Haz clic en el botón azul <span className="font-bold text-[#111111]">"Elija las imágenes"</span> y selecciona todas las fotos del inmueble juntas desde tu computadora o teléfono.
+                        </p>
+                        <div className="p-3 bg-white rounded-xl border border-[#E5E1D8] text-[11px] text-gray-600">
+                          💡 <span className="font-semibold text-[#111111]">Tip:</span> Puedes subir de 1 a 20 fotos simultáneamente en una sola carga.
+                        </div>
+                      </div>
+
+                      {/* PASO 2 */}
+                      <div className="p-6 bg-[#FDFBF7] rounded-3xl border border-[#E5E1D8] space-y-3 relative overflow-hidden">
+                        <div className="w-8 h-8 rounded-full bg-[#9E7D4E] text-white font-bold text-sm flex items-center justify-center shadow-sm">
+                          2
+                        </div>
+                        <h3 className="text-base font-bold text-[#111111]">
+                          Copiar el "Enlace Directo" (Direct Link)
+                        </h3>
+                        <p className="text-xs text-[#555555] leading-relaxed">
+                          Al terminar la carga, PostImages te mostrará varios tipos de enlaces. Busca la casilla que dice <span className="font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">"Enlace directo"</span> (que termina en .jpg, .png o .jpeg) y haz clic en el botón de copiar.
+                        </p>
+                        <div className="p-3 bg-white rounded-xl border border-[#E5E1D8] text-[11px] text-gray-600 font-mono">
+                          Ejemplo de Enlace Directo válido: <br/>
+                          <span className="text-blue-600 font-bold">https://i.postimg.cc/4xnwqN7d/image.png</span>
+                        </div>
+                      </div>
+
+                      {/* PASO 3 */}
+                      <div className="p-6 bg-[#FDFBF7] rounded-3xl border border-[#E5E1D8] space-y-3 relative overflow-hidden">
+                        <div className="w-8 h-8 rounded-full bg-[#9E7D4E] text-white font-bold text-sm flex items-center justify-center shadow-sm">
+                          3
+                        </div>
+                        <h3 className="text-base font-bold text-[#111111]">
+                          Pegar Varios Enlaces Separados por Comas (,) o Saltos de Línea
+                        </h3>
+                        <p className="text-xs text-[#555555] leading-relaxed">
+                          En el formulario de creación del inmueble, en el campo <span className="font-bold text-[#111111]">"Galería de Fotos"</span>, pega los enlaces directos. Puedes pegarlos separados por una coma <span className="font-bold text-[#9E7D4E]">,</span> o colocando cada enlace en un renglón distinto. El sistema los convertirá en un carrusel dinámico.
+                        </p>
+                        <div className="p-3 bg-white rounded-xl border border-[#E5E1D8] text-[11px] text-gray-600">
+                          <span className="font-semibold text-[#111111]">Ejemplo en el formulario:</span><br/>
+                          <code className="text-xs bg-gray-100 p-1 rounded font-mono block mt-1">
+                            https://i.postimg.cc/foto1.jpg, https://i.postimg.cc/foto2.jpg
+                          </code>
+                        </div>
+                      </div>
+
+                      {/* PASO 4 */}
+                      <div className="p-6 bg-[#FDFBF7] rounded-3xl border border-[#E5E1D8] space-y-3 relative overflow-hidden">
+                        <div className="w-8 h-8 rounded-full bg-[#9E7D4E] text-white font-bold text-sm flex items-center justify-center shadow-sm">
+                          4
+                        </div>
+                        <h3 className="text-base font-bold text-[#111111]">
+                          Colocar Cualquier Ubicación (Sin Restricciones)
+                        </h3>
+                        <p className="text-xs text-[#555555] leading-relaxed">
+                          No estás limitado a Caracas. En el campo <span className="font-bold text-[#111111]">"Ciudad / Estado / Región"</span> escribe la ciudad o estado correspondiente (ej. <span className="font-semibold">Valencia, Aragua, Lechería, Maracay, Maracaibo, Margarita, Miami, etc.</span>). Se agregará de inmediato como filtro de búsqueda.
+                        </p>
+                        <div className="p-3 bg-white rounded-xl border border-[#E5E1D8] text-[11px] text-gray-600">
+                          🌍 <span className="font-semibold text-[#111111]">Filtro Geográfico Libre:</span> Cualquier ciudad que escribas quedará activa para que los clientes puedan filtrar sus búsquedas por esa zona.
+                        </div>
+                      </div>
+
+                    </div>
+
+                    <div className="p-6 bg-gradient-to-r from-[#111111] via-[#222222] to-[#111111] text-white rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
+                      <div>
+                        <h4 className="text-base font-bold font-serif-luxury text-[#C5A880]">
+                          ¿Listo para publicar un nuevo inmueble?
+                        </h4>
+                        <p className="text-xs text-gray-300 mt-1">
+                          Abre el formulario de inmuebles y prueba cargar tus primeras imágenes usando PostImages.
+                        </p>
+                      </div>
+
+                      <button 
+                        onClick={() => { setAdminActiveTab('properties'); handleOpenNewProperty(); }}
+                        className="bg-gradient-to-r from-[#C5A880] to-[#9E7D4E] hover:opacity-90 text-white text-xs font-bold uppercase tracking-wider px-6 py-3.5 rounded-xl shadow-lg transition-all cursor-pointer shrink-0"
+                      >
+                        + Crear Nuevo Inmueble Ahora
+                      </button>
+                    </div>
+
                   </div>
                 )}
 
@@ -4236,6 +4647,190 @@ export default function App() {
                 >
                   <Save className="w-4 h-4" />
                   <span>GUARDAR INMUEBLE</span>
+                </button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal para Añadir / Editar Integrante del Equipo */}
+      {isTeamModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4 overflow-y-auto">
+          <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-[#E5E1D8] my-8 p-6 sm:p-8 relative animate-in fade-in zoom-95 max-h-[90vh] overflow-y-auto">
+            
+            <button 
+              onClick={() => setIsTeamModalOpen(false)}
+              className="absolute top-6 right-6 text-gray-400 hover:text-gray-700 bg-gray-100 p-2 rounded-full cursor-pointer transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center space-x-3 mb-6 pb-4 border-b border-[#E5E1D8]">
+              <div className="w-10 h-10 rounded-xl bg-[#9E7D4E]/10 flex items-center justify-center text-[#9E7D4E]">
+                <Users className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-xl font-serif-luxury font-bold text-[#111111]">
+                  {editingTeamId ? 'Editar Integrante del Equipo' : 'Añadir Nuevo Asesor / Abogado'}
+                </h2>
+                <p className="text-xs text-[#555555]">
+                  Complete los datos profesionales y de contacto del integrante del equipo.
+                </p>
+              </div>
+            </div>
+
+            <form onSubmit={handleSaveTeamMember} className="space-y-4">
+              
+              {/* Nombre y Cargo */}
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
+                <div className="sm:col-span-8">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-[#111111] mb-1">
+                    Nombre Completo *
+                  </label>
+                  <input 
+                    type="text"
+                    required
+                    value={teamForm.name}
+                    onChange={(e) => setTeamForm({...teamForm, name: e.target.value})}
+                    placeholder="Ej: Lic. Marianela Machado"
+                    className="w-full bg-[#FDFBF7] border border-[#E5E1D8] px-4 py-3 rounded-xl text-xs focus:outline-none focus:border-[#9E7D4E] text-[#111111]"
+                  />
+                </div>
+
+                <div className="sm:col-span-4">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-[#111111] mb-1">
+                    Categoría *
+                  </label>
+                  <select 
+                    value={teamForm.category}
+                    onChange={(e) => setTeamForm({...teamForm, category: e.target.value as 'abogado' | 'asesor'})}
+                    className="w-full bg-[#FDFBF7] border border-[#E5E1D8] px-4 py-3 rounded-xl text-xs font-semibold text-[#111111] focus:outline-none focus:border-[#9E7D4E]"
+                  >
+                    <option value="asesor">Asesor Inmobiliario</option>
+                    <option value="abogado">Cuerpo Jurídico / Abogado</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Cargo / Título */}
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-[#111111] mb-1">
+                  Cargo o Título Profesional *
+                </label>
+                <input 
+                  type="text"
+                  required
+                  value={teamForm.role}
+                  onChange={(e) => setTeamForm({...teamForm, role: e.target.value})}
+                  placeholder="Ej: Asesora Inmobiliaria en Distinción Inmobiliaria Tavares"
+                  className="w-full bg-[#FDFBF7] border border-[#E5E1D8] px-4 py-3 rounded-xl text-xs focus:outline-none focus:border-[#9E7D4E] text-[#111111]"
+                />
+              </div>
+
+              {/* Teléfono y WhatsApp */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-[#111111] mb-1">
+                    Teléfono de Contacto *
+                  </label>
+                  <input 
+                    type="text"
+                    required
+                    value={teamForm.phone}
+                    onChange={(e) => setTeamForm({...teamForm, phone: e.target.value})}
+                    placeholder="Ej: +58 414-4885686"
+                    className="w-full bg-[#FDFBF7] border border-[#E5E1D8] px-4 py-3 rounded-xl text-xs focus:outline-none focus:border-[#9E7D4E] text-[#111111]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-[#111111] mb-1">
+                    Número de WhatsApp
+                  </label>
+                  <input 
+                    type="text"
+                    value={teamForm.whatsapp}
+                    onChange={(e) => setTeamForm({...teamForm, whatsapp: e.target.value})}
+                    placeholder="Ej: +584144885686"
+                    className="w-full bg-[#FDFBF7] border border-[#E5E1D8] px-4 py-3 rounded-xl text-xs focus:outline-none focus:border-[#9E7D4E] text-[#111111]"
+                  />
+                </div>
+              </div>
+
+              {/* Foto URL */}
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-[#111111] mb-1">
+                  URL de Fotografía Oficial (Ej. PostImages / ImgBB)
+                </label>
+                <input 
+                  type="url"
+                  value={teamForm.image}
+                  onChange={(e) => setTeamForm({...teamForm, image: e.target.value})}
+                  placeholder="https://i.postimg.cc/4xnwqN7d/image.png"
+                  className="w-full bg-[#FDFBF7] border border-[#E5E1D8] px-4 py-3 rounded-xl text-xs focus:outline-none focus:border-[#9E7D4E] text-[#111111]"
+                />
+              </div>
+
+              {/* Biografía / Perfil */}
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-[#111111] mb-1">
+                  Perfil Profesional / Trayectoria / Ubicación
+                </label>
+                <textarea 
+                  rows={4}
+                  value={teamForm.bio}
+                  onChange={(e) => setTeamForm({...teamForm, bio: e.target.value})}
+                  placeholder="Descripción detallada de trayectoria, mercado de residencia (ej. Estado Aragua) y habilidades..."
+                  className="w-full bg-[#FDFBF7] border border-[#E5E1D8] p-3 rounded-xl text-xs focus:outline-none focus:border-[#9E7D4E] text-[#111111]"
+                ></textarea>
+              </div>
+
+              {/* Especialidad e Instagram */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-[#111111] mb-1">
+                    Área de Especialidad
+                  </label>
+                  <input 
+                    type="text"
+                    value={teamForm.specialty}
+                    onChange={(e) => setTeamForm({...teamForm, specialty: e.target.value})}
+                    placeholder="Ej: Mercado Aragua & Ventas"
+                    className="w-full bg-[#FDFBF7] border border-[#E5E1D8] px-4 py-3 rounded-xl text-xs focus:outline-none focus:border-[#9E7D4E] text-[#111111]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-[#111111] mb-1">
+                    Usuario Instagram (Sin @)
+                  </label>
+                  <input 
+                    type="text"
+                    value={teamForm.instagram}
+                    onChange={(e) => setTeamForm({...teamForm, instagram: e.target.value})}
+                    placeholder="Ej: marianelainmobiliaria"
+                    className="w-full bg-[#FDFBF7] border border-[#E5E1D8] px-4 py-3 rounded-xl text-xs focus:outline-none focus:border-[#9E7D4E] text-[#111111]"
+                  />
+                </div>
+              </div>
+
+              {/* Botones de acción */}
+              <div className="pt-4 border-t border-[#E5E1D8] flex items-center justify-end space-x-3">
+                <button 
+                  type="button"
+                  onClick={() => setIsTeamModalOpen(false)}
+                  className="px-6 py-3 rounded-xl text-xs font-bold uppercase text-[#555555] bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button 
+                  type="submit"
+                  className="px-8 py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r from-[#C5A880] via-[#B3966D] to-[#9E7D4E] hover:opacity-95 shadow-lg transition-all cursor-pointer flex items-center space-x-2"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>GUARDAR INTEGRANTE</span>
                 </button>
               </div>
 
